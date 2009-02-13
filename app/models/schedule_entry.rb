@@ -21,9 +21,9 @@ class ScheduleEntry < ActiveRecord::Base
 		result << "em; "
 		
 		color_id = color_users ? user.id : project.id
-		red   = ((Math.sin(color_id+Math::PI*0/3)+5)*32).to_i + 56
-		green = ((Math.sin(color_id+Math::PI*2/3)+5)*32).to_i + 56
-		blue  = ((Math.sin(color_id+Math::PI*4/3)+5)*32).to_i + 56
+		red   = ((Math.sin(color_id*2.6+Math::PI*0/3)+5)*32).to_i + 56
+		green = ((Math.sin(color_id*2.6+Math::PI*2/3)+5)*32).to_i + 56
+		blue  = ((Math.sin(color_id*2.6+Math::PI*4/3)+5)*32).to_i + 56
 		
 		result << "background: rgb(#{red.to_s},#{green.to_s},#{blue.to_s}); "
 		result << "border: 1px solid rgb(#{(red/2).to_s},#{(green/2).to_s},#{(blue/2).to_s}); "
