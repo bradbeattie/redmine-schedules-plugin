@@ -1,0 +1,24 @@
+<table class="cal schedule_entry-cal">
+	<thead>
+			<tr><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%>, <br/><%= month_name((calendar.startdt+i).month) %> <%= (calendar.startdt+i).day %></th><% end %></tr>
+	</thead>
+	<tbody>
+		<tr>
+			<% day = calendar.startdt %>
+			<% while day <= calendar.enddt %>
+			<td class="even<%= ' today' if Date.today == day %>">
+				<ul>
+				<% @schedule_entries.schedule_entries_by_day(day).sort.each do |schedule_entry| %>
+					<li style="<%= schedule_entry.style(@user.nil?) %>" title="<%= lwr(:label_f_hour, schedule_entry.hours) %>">
+						<%= link_to schedule_entry.project, :controller => 'schedules', :action => 'index', :date => day, :project_id => schedule_entry.project if @project.nil? %>
+						<%= "<br/>" if @project.nil? && @user.nil? %>
+						<%= link_to schedule_entry.user,    :controller => 'schedules', :action => 'index', :date => day, :user_id => schedule_entry.user.id if @user.nil? %>
+					</li>
+				<% end %>
+				</ul>
+			</td>
+			<% day = day + 1
+			end %>
+		</tr>
+	</tbody>
+</table>

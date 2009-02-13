@@ -1,0 +1,8 @@
+= schedules
+
+This plugin provides instances of Redmine a method with which to allocate users
+to projects and to track this allocation over time. It does so by creating daily
+time estimates of hours worked per project per user.
+
+Created by Gossamer Threads Inc. (http://www.gossamer-threads.com)
+Primary developer: Brad Beattie

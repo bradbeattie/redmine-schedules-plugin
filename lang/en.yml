@@ -1,0 +1,5 @@
+label_schedules_index: Schedules
+label_schedules_send_update: Send schedule updates to their respective users
+label_schedules_updated: Schedules updated.
+label_f_short_hour: %.0f hour
+label_f_short_hour_plural: %.0f hours

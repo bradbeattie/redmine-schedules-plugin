@@ -1,0 +1,32 @@
+<table class="cal schedule_entry-grid">
+	<thead>
+		<tr><td></td><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%>, <br/><%= month_name((calendar.startdt+i).month) %> <%= (calendar.startdt+i).day %></th><% end %></tr>
+	</thead>
+	<tbody>
+		<% @users.each do |user| %>
+		<tr>
+			<%= "<th>#{user}</th>" %>
+			<% day = calendar.startdt
+			while day <= calendar.enddt %>
+			<td class="even<%= ' today' if Date.today == day %>">
+				<%
+					schedule_entry = ScheduleEntry.find(:first, :conditions => ["project_id=? AND user_id=? AND date=?", @project.id, user.id, day])
+					if (schedule_entry.nil?)
+						schedule_entry = ScheduleEntry.new
+						schedule_entry.project_id = @project.id
+						schedule_entry.user_id = user.id
+						schedule_entry.date = day
+					end
+				%>
+				<% if User.current.allowed_to?(:edit_all_schedules, @project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, @project)) %>
+					<%= text_field "schedule_entry", "hours", "size" => 3, "name" => schedule_entry.form_id, "id" => schedule_entry.form_id, "value" => schedule_entry.hours %>
+				<% else %>
+					<%= %Q{<input type="text" size="3" disabled="disabled" value="#{schedule_entry.hours}" />} %>
+				<% end %>
+			</td>
+			<% day = day + 1
+			end %>
+		</tr>
+		<% end %>
+	</tbody>
+</table>

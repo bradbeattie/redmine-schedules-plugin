@@ -1,0 +1,6 @@
+map.connect 'projects/:project_id/schedules', :controller => 'schedules', :action => 'index' 
+map.connect 'projects/:project_id/schedules/edit', :controller => 'schedules', :action => 'edit' 
+map.connect 'schedules/user/:user_id', :controller => 'schedules', :action => 'index'
+map.connect 'schedules/user/:user_id/edit', :controller => 'schedules', :action => 'edit'
+map.connect 'schedules/project/:project_id', :controller => 'schedules', :action => 'index'
+map.connect 'schedules/project/:project_id/edit', :controller => 'schedules', :action => 'edit'

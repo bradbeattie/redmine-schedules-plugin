@@ -1,0 +1,7 @@
+table.schedule_entry-grid { width: auto; }
+table.schedule_entry-grid tbody tr { height: auto; }
+table.schedule_entry-grid tbody th { padding: 0.4em 1.2em; white-space: nowrap; }
+table.schedule_entry-grid tbody td { text-align: center; vertical-align: middle; }
+table.schedule_entry-grid tbody input { text-align: center; }
+table.schedule_entry-cal tbody ul { list-style-type: none; padding: 0; margin: 0.5em }
+table.schedule_entry-cal tbody li { white-space: nowrap; border: 1px solid #666; padding: 0.5em; margin-bottom: 0.5em; }

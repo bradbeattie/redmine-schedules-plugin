@@ -1,0 +1,39 @@
+<div class="contextual">
+	<%= link_to(l(:button_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project %>
+	<%= link_to(l(:button_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => @user}, :class => 'icon icon-edit') if @user %>
+	<%= link_to(l(:button_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => User.current.id}, :class => 'icon icon-edit') unless @project || @user %>
+</div>
+
+<h2>Schedules</h2>
+
+<% form_tag({}, :id => 'date_form') do %>
+
+<fieldset id="date-range"><legend><%= l(:label_date_range) %></legend>
+    <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
+    <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
+    <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
+    <%= link_to_remote l(:button_apply), 
+		{	:update => "content",
+			:with => "Form.serialize('date_form')"
+		}, :class => 'icon icon-checked' %>
+	<%= link_to l(:button_reset), { :project_id => @project.id},  :class => 'icon icon-reload' unless @project.nil? %>
+	<%= link_to l(:button_reset), { :user_id => nil },  :class => 'icon icon-reload' if @project.nil? %>
+</fieldset>
+
+<p style="float:right; margin:0px;">
+	<%= link_to_remote ('&#171; Previous week'), {:update => "content", :url => { :date => @date - 7 }} %> |
+	<%= link_to_remote ('Next week &#187;'), {:update => "content", :url => { :date => @date + 7 }} %>
+</p>
+
+<% end %>
+
+<%= error_messages_for 'query' %>
+
+<h3><%=@date - @date.wday%><%=" for " + @project.to_s unless @project.nil? %><%= " for " + @user.to_s unless @user.nil? %></h3>
+<%= render :partial => 'calendar', :locals => {:calendar => @calendar} %>
+			
+<% html_title(l(:label_calendar)) -%>
+
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>
+<% end %>
