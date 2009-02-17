@@ -10,18 +10,18 @@
 			while day <= calendar.enddt %>
 			<td class="even<%= ' today' if Date.today == day %>">
 				<%
-					schedule_entry = ScheduleEntry.find(:first, :conditions => ["project_id=? AND user_id=? AND date=?", project.id, @user.id, day])
-					if (schedule_entry.nil?)
-						schedule_entry = ScheduleEntry.new
-						schedule_entry.project_id = project.id
-						schedule_entry.user_id = @user.id
-						schedule_entry.date = day
+					entry = ScheduleEntry.find(:first, :conditions => ["project_id=? AND user_id=? AND date=?", project.id, @user.id, day])
+					if (entry.nil?)
+						entry = ScheduleEntry.new
+						entry.project_id = project.id
+						entry.user_id = @user.id
+						entry.date = day
 					end
 				%>
-				<% if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) %>
-					<%= text_field "schedule_entry", "hours", "size" => 3, "name" => schedule_entry.form_id, "id" => schedule_entry.form_id, "value" => schedule_entry.hours %>
+				<% if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin? %>
+					<%= text_field "schedule_entry", "hours", "size" => 3, "name" => entry.form_id, "id" => entry.form_id, "value" => entry.hours %>
 				<% else %>
-					<%= %Q{<input type="text" size="3" disabled="disabled" value="#{schedule_entry.hours}" />} %>
+					<%= %Q{<input type="text" size="3" disabled="disabled" value="#{entry.hours}" />} %>
 				<% end %>
 			</td>
 			<% day = day + 1
@@ -29,4 +29,25 @@
 		</tr>
 		<% end %>
 	</tbody>
+	<tfoot>
+		<tr><th>Available</th>
+		<% day = calendar.startdt
+		while day <= calendar.enddt %>
+		<td class="even<%= ' today' if Date.today == day %>">
+			<%
+				entry = AvailabilityEntry.find(:first, :conditions => ["user_id=? AND date=?", @user.id, day])
+				if (entry.nil?)
+					entry = AvailabilityEntry.new
+					entry.user_id = @user.id
+					entry.date = day
+				end
+			%>
+			<% if User.current == @user || User.current.admin? %>
+				<%= text_field "availability_entry", "hours", "size" => 3, "name" => entry.form_id, "id" => entry.form_id, "value" => entry.hours %>
+			<% else %>
+				<%= %Q{<input type="text" size="3" disabled="disabled" value="" />} %>
+			<% end %>
+		<% day = day + 1
+		end %>
+	</tfoot>
 </table>

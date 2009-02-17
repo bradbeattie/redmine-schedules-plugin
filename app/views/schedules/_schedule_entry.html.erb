@@ -1,0 +1,7 @@
+<li style="<%= entry.style(@user.nil?) %>" title="<%= lwr(:label_f_hour, entry.hours) %>">
+	<% if @project.nil? %>
+		<%= link_to entry.project, :controller => 'schedules', :action => 'index', :date => day, :project_id => entry.project unless entry.project.nil? %>
+	<% end %>
+	<%= "<br/>" if @project.nil? && @user.nil? %>
+	<%= link_to entry.user, :controller => 'schedules', :action => 'index', :date => day, :user_id => entry.user.id if @user.nil? %>
+</li>

@@ -1,0 +1,7 @@
+<li style="<%= entry.style(@user.nil?, !@viewing_availability) %>" title="<%= lwr(:label_f_hour, entry.hours) %>">
+	<% if !@viewing_availability %>
+		<em><%= link_to "Available", :controller => 'schedules', :action => 'available', :date => day %></em>
+	<% end %>
+	<%= "<br/>" if !@viewing_availability %>
+	<%= link_to entry.user, :controller => 'schedules', :action => 'index', :date => day, :user_id => entry.user.id if @user.nil? %>
+</li>

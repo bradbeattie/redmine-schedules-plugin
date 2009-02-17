@@ -2,7 +2,7 @@ class SchedulesController < ApplicationController
 
 	# Initialize the controller
 	before_filter :require_login
-	before_filter :save_schedule_entries, :only => [:edit]
+	before_filter :save_entries, :only => [:edit]
 	include SchedulesHelper
 
 
@@ -23,14 +23,25 @@ class SchedulesController < ApplicationController
 		# Retrieve the associated schedule_entries
 		@projects = visible_projects
 		if @projects.size > 0
-			@query_restrictions = "project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")"
-			@query_restrictions << " AND user_id = " + params[:user_id] if params[:user_id]
-			@query_restrictions << " AND project_id = " + @project.id.to_s unless @project.nil?
-			@schedule_entries = SchedulesCalendar.new(ScheduleEntry.find(:all, :conditions => [@query_restrictions + " AND (date BETWEEN ? AND ?)", @calendar.startdt, @calendar.enddt]))
-			render :layout => false if request.xhr?
+			common_restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
+			common_restrictions << " AND user_id = " + params[:user_id] if params[:user_id]
+			schedule_restrictions = " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")"
+			schedule_restrictions << " AND project_id = " + @project.id.to_s unless @project.nil?
+			availability_restrictions = " AND true"
+			availability_restrictions << " AND user_id IN ("+@project.members.collect {|member| member.user.id.to_s }.join(',')+")" unless @project.nil?
+			@schedule_entries = SchedulesCalendar.new(ScheduleEntry.find(:all, :conditions => common_restrictions + schedule_restrictions))
+			@availability_entries = SchedulesCalendar.new(AvailabilityEntry.find(:all, :conditions => common_restrictions + availability_restrictions))
+			render :action => 'index', :layout => false if request.xhr?
+			render :action => 'index' unless request.xhr?
 		else
 			render_403
 		end
+	end
+	
+	# View only the times in which users are available
+	def available
+		@viewing_availability = true 
+		index
 	end
 	
 
@@ -79,42 +90,76 @@ class SchedulesController < ApplicationController
 		
 	private
 	
-
+	
 	# Given a specific date, show the projects and users that the current user is
 	# allowed to see and provide edit access to those permission is granted to.
-	def save_schedule_entries
+	def save_entries
 		if request.post? && params[:commit]
-			params[:schedule_entry].each do |user_id, project_ids|
-				user = User.find(user_id)
-				project_ids.each do |project_id, dates|
-					project = Project.find(project_id)
-					if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project))
-						dates.each do |date, hours|
-
-							# Find the old entry and create a new one
-							old_entry = ScheduleEntry.find(:first, :conditions => {:project_id => project_id, :user_id => user_id, :date => date})
-							new_entry = ScheduleEntry.new
-							new_entry.project_id = project_id
-							new_entry.user_id = user_id
-							new_entry.date = Date.parse(date)
-							new_entry.hours = hours.to_f
-							new_entry.save if new_entry.hours > 0
-							
-							# Send mail if editing another user
-							if (User.current != user) && (params[:notify]) && (old_entry.nil? || new_entry.hours != old_entry.hours) && (user.allowed_to?(:view_schedules, project))
-								ScheduleMailer.deliver_future_changed(User.current, user, project, new_entry.date, new_entry.hours) 
-							end
-							
-							# Destroy the old entry
-							old_entry.destroy unless old_entry.nil?
-						end
-					end
-				end
-			end
+			save_schedule_entries unless params[:schedule_entry].nil?
+			save_availability_entries unless params[:availability_entry].nil?
 			flash[:notice] = l(:label_schedules_updated)
 			redirect_to({:action => 'index', :date => Date.parse(params[:date])})
 		end
 	end
+
+
+	#
+	def save_schedule_entries
+		params[:schedule_entry].each do |user_id, project_ids|
+			user = User.find(user_id)
+			project_ids.each do |project_id, dates|
+				project = Project.find(project_id)
+				if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin?
+					dates.each do |date, hours|
+
+						# Find the old entry and create a new one
+						old_entry = ScheduleEntry.find(:first, :conditions => {:project_id => project_id, :user_id => user_id, :date => date})
+						new_entry = ScheduleEntry.new
+						new_entry.project_id = project_id
+						new_entry.user_id = user_id
+						new_entry.date = Date.parse(date)
+						new_entry.hours = hours.to_f
+						new_entry.save if new_entry.hours > 0
+						
+						# Send mail if editing another user
+						if (User.current != user) && (params[:notify]) && (old_entry.nil? || new_entry.hours != old_entry.hours) && (user.allowed_to?(:view_schedules, project))
+							ScheduleMailer.deliver_future_changed(User.current, user, project, new_entry.date, new_entry.hours) 
+						end
+						
+						# Destroy the old entry
+						old_entry.destroy unless old_entry.nil?
+					end
+				end
+			end
+		end
+	end
+	
+	
+	#
+	def save_availability_entries
+		params[:availability_entry].each do |user_id, dates|
+			user = User.find(user_id)
+			if (User.current == user || User.current.admin?)
+				dates.each do |date, hours|
+				
+					# Find the old entry and create a new one
+					old_entry = AvailabilityEntry.find(:first, :conditions => {:user_id => user_id, :date => date})
+					new_entry = AvailabilityEntry.new
+					new_entry.user_id = user_id
+					new_entry.date = Date.parse(date)
+					new_entry.hours = hours.to_f
+					new_entry.save if new_entry.hours > 0
+					
+					# Send mail if editing another user
+					# DISABLED FOR NOW
+					
+					# Destroy the old entry
+					old_entry.destroy unless old_entry.nil?
+				end
+			end
+		end
+	end
+	
 	
 	# Return a list of the projects the user has permission to view schedules in
 	def visible_projects

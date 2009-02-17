@@ -29,7 +29,7 @@
 
 <%= error_messages_for 'query' %>
 
-<h3><%=@date - @date.wday%><%=" for " + @project.to_s unless @project.nil? %><%= " for " + @user.to_s unless @user.nil? %></h3>
+<h3><%=@date - @date.wday%><%=" for " + @project.to_s unless @project.nil? %><%= " for " + @user.to_s unless @user.nil? %><%= " for availible times" if @viewing_availability %></h3>
 <%= render :partial => 'calendar', :locals => {:calendar => @calendar} %>
 			
 <% html_title(l(:label_calendar)) -%>
