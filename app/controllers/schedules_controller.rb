@@ -111,23 +111,38 @@ class SchedulesController < ApplicationController
 				project = Project.find(project_id)
 				if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin?
 					dates.each do |date, hours|
+					
+						# Parse the given parameters
+						date = Date.parse(date)
+						hours = hours.to_f
 
-						# Find the old entry and create a new one
-						old_entry = ScheduleEntry.find(:first, :conditions => {:project_id => project_id, :user_id => user_id, :date => date})
-						new_entry = ScheduleEntry.new
-						new_entry.project_id = project_id
-						new_entry.user_id = user_id
-						new_entry.date = Date.parse(date)
-						new_entry.hours = hours.to_f
-						new_entry.save if new_entry.hours > 0
+						# Find the old schedule entry and create a new one
+						old_schedule_entry = ScheduleEntry.find(:first, :conditions => {:project_id => project_id, :user_id => user_id, :date => date})
+						new_schedule_entry = ScheduleEntry.new
+						new_schedule_entry.project_id = project_id
+						new_schedule_entry.user_id = user_id
+						new_schedule_entry.date = date
+						new_schedule_entry.hours = hours
+						new_schedule_entry.save if new_schedule_entry.hours > 0
+						
+						# Find the old availability entry and create a new one
+						old_availability_entry = AvailabilityEntry.find(:first, :conditions => {:user_id => user_id, :date => date})
+						new_availability_entry = AvailabilityEntry.new
+						new_availability_entry.user_id = user_id
+						new_availability_entry.date = date
+						new_availability_entry.hours = (old_availability_entry.nil? ? 0 : old_availability_entry.hours)
+						new_availability_entry.hours += (old_schedule_entry.nil? ? 0 : old_schedule_entry.hours)
+						new_availability_entry.hours -= new_schedule_entry.hours
+						new_availability_entry.save if new_availability_entry.hours > 0
 						
 						# Send mail if editing another user
-						if (User.current != user) && (params[:notify]) && (old_entry.nil? || new_entry.hours != old_entry.hours) && (user.allowed_to?(:view_schedules, project))
-							ScheduleMailer.deliver_future_changed(User.current, user, project, new_entry.date, new_entry.hours) 
+						if (User.current != user) && (params[:notify]) && (old_schedule_entry.nil? || hours != old_schedule_entry.hours) && (user.allowed_to?(:view_schedules, project))
+							ScheduleMailer.deliver_future_changed(User.current, user, project, date, hours) 
 						end
 						
-						# Destroy the old entry
-						old_entry.destroy unless old_entry.nil?
+						# Destroy the old entries
+						old_schedule_entry.destroy unless old_schedule_entry.nil?
+						old_availability_entry.destroy unless old_availability_entry.nil?
 					end
 				end
 			end
