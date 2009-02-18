@@ -1,5 +1,10 @@
-label_schedules_index: Schedules
+label_schedules_index: Schedule
 label_schedules_send_update: Send schedule updates to their respective users
 label_schedules_updated: Schedules updated.
+label_schedule_edit: Editing schedule for %s
 label_f_short_hour: %.0f hour
 label_f_short_hour_plural: %.0f hours
+label_user_schedule: %s's schedule
+label_project_schedule: Schedule
+label_availability_schedule: Schedule availabilities
+label_global_schedule: All schedules

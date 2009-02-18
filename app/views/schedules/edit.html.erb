@@ -1,7 +1,14 @@
 <%= breadcrumb link_to(l(:label_schedules_index), {:controller => 'schedules', :action => 'index', :date => @date, :project_id => @project}) unless @project.nil? %>
 <%= breadcrumb link_to(l(:label_schedules_index), {:controller => 'schedules', :action => 'index', :date => @date, :user_id => @user.id}) unless @user.nil? %>
 <%= breadcrumb link_to(l(:label_schedules_index), {:controller => 'schedules', :action => 'index', :date => @date }) unless !@project.nil? || !@user.nil? %>
-<h2>Schedule<%=" for "+@project.to_s unless @project.nil? %><%=" for "+@user.to_s unless @user.nil? %></h2>
+
+<h2>
+	<%= l(:label_schedule_edit, link_to_user(@user)) unless @user.nil? %>
+	<%= l(:label_schedule_edit, @project) unless @project.nil? %>
+	<%= l(:label_schedule_edit, "today") if @user.nil? && @project.nil? %>
+</h2>
+
+<p class="subtitle"><%= "#{l(:label_date_from)} #{format_date(@calendar.startdt)} #{l(:label_date_to).downcase} #{format_date(@calendar.enddt)}" %></p>
 
 <% form_tag({}, :id => 'date_form') do %>
 
@@ -11,16 +18,18 @@
     <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
     <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
     <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
+</fieldset>
+
+<p class="buttons">
     <%= link_to_remote l(:button_apply), 
                    { :update => "content",
                      :with => "Form.serialize('date_form')"
                    }, :class => 'icon icon-checked' %>
-</fieldset>
+</p>
 
 <% end %>
 
 <% form_tag({:action=> "edit"}) do %>
-	<h3><%= @date %></h3>
 	<div class="box">
 		<%= hidden_field_tag 'date', @date %>
 		<%= hidden_field_tag 'project_id', @project.id unless @project.nil? %>
@@ -37,5 +46,7 @@
     <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>
 <% end %>
 
+
 <% content_for :sidebar do %>
+	<%= render :partial => 'sidebar' %>
 <% end %>

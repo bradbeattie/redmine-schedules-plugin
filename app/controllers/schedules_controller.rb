@@ -22,7 +22,11 @@ class SchedulesController < ApplicationController
 		
 		# Retrieve the associated schedule_entries
 		@projects = visible_projects
-		if @projects.size > 0
+		@projects = @projects & @user.projects unless @user.nil?
+		@users = @projects.collect(&:users).flatten.uniq if @project.nil?
+		@users = @project.users unless @project.nil?
+		
+		if @projects.size > 0 && @users.size > 0
 			common_restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
 			common_restrictions << " AND user_id = " + params[:user_id] if params[:user_id]
 			schedule_restrictions = " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")"
