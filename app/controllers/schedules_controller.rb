@@ -21,10 +21,10 @@ class SchedulesController < ApplicationController
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(@date.year, @date.month, @date.day), current_language, :week)
 		
 		# Retrieve the associated schedule_entries
-		@projects = visible_projects
+		@projects = visible_projects.sort
 		@projects = @projects & @user.projects unless @user.nil?
-		@users = @projects.collect(&:users).flatten.uniq if @project.nil?
-		@users = @project.users unless @project.nil?
+		@users = visible_users(@projects.collect(&:members).flatten.uniq) if @project.nil?
+		@users = visible_users(@project.members) unless @project.nil?
 		
 		if @projects.size > 0 && @users.size > 0
 			common_restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
@@ -64,7 +64,7 @@ class SchedulesController < ApplicationController
 		@projects = @user.nil? ? visible_projects : @user.projects if @projects.nil?
 		@projects = @projects & visible_projects
 		if @user.nil?
-			@users = @projects.collect(&:users).flatten.uniq
+			@users = visible_users(@projects.collect{|p| p.members }.flatten)
 		end
 		
 		# If we couldn't find any users or projects, then we don't have access
@@ -183,5 +183,10 @@ class SchedulesController < ApplicationController
 	# Return a list of the projects the user has permission to view schedules in
 	def visible_projects
 		Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_schedules))
+	end
+	
+	# Return a list of the users in the given projects which have permission to view schedules
+	def visible_users(members)		
+		members.select {|m| m.role.allowed_to?(:view_schedules)}.collect {|m| m.user}.uniq.sort
 	end
 end
