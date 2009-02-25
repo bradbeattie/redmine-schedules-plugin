@@ -1,4 +1,4 @@
-<li style="min-height: <%= 3.2*entry.hours %>em" title="<%= lwr(:label_f_hour, entry.hours) %>">
+<li style="min-height: <%= 3.2*entry.hours %>em" title="<%= l(:label_f_hour, :value => entry.hours) %>">
 	<div style="min-height: <%= 3.2*entry.hours - 1.9 %>em; <%= entry.style(@user.nil?) %>">
 		<% if @project.nil? %>
 			<%= link_to entry.project, :controller => 'schedules', :action => 'index', :date => day, :project_id => entry.project unless entry.project.nil? %>

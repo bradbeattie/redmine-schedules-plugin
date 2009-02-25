@@ -1,4 +1,4 @@
-<table class="cal schedule_entry-grid">
+<table class="cal schedule_entry_grid">
 	<thead>
 		<tr><td></td><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%></th><% end %></tr>
 	</thead>
@@ -16,13 +16,17 @@
 						entry.project_id = project.id
 						entry.user_id = @user.id
 						entry.date = day
+						hours = nil
+					else
+						hours = entry.hours
 					end
 				%>
 				<% if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin? %>
-					<%= text_field "schedule_entry", "hours", "size" => 3, "name" => entry.form_id, "id" => entry.form_id, "value" => entry.hours %>
+					<%= text_field "schedule_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => hours %>
 				<% else %>
 					<%= %Q{<input type="text" size="3" disabled="disabled" value="#{entry.hours}" />} %>
 				<% end %>
+				<%= %Q{<input type="hidden" value="#{entry.hours}" />} %>
 			</td>
 			<% day = day + 1
 			end %>
@@ -30,24 +34,44 @@
 		<% end %>
 	</tbody>
 	<tfoot>
-		<tr><th>Available</th>
-		<% day = calendar.startdt
-		while day <= calendar.enddt %>
-		<td class="even<%= ' today' if Date.today == day %>">
-			<%
-				entry = AvailabilityEntry.find(:first, :conditions => ["user_id=? AND date=?", @user.id, day])
-				if (entry.nil?)
-					entry = AvailabilityEntry.new
-					entry.user_id = @user.id
-					entry.date = day
-				end
-			%>
-			<% if User.current == @user || User.current.admin? %>
-				<%= text_field "availability_entry", "hours", "size" => 3, "name" => entry.form_id, "id" => entry.form_id, "value" => entry.hours %>
-			<% else %>
-				<%= %Q{<input type="text" size="3" disabled="disabled" value="" />} %>
-			<% end %>
-		<% day = day + 1
-		end %>
+		<tr>
+			<th>Totals</th>
+			<% day = calendar.startdt
+			while day <= calendar.enddt %>
+			<th class="even<%= ' today' if Date.today == day %>">
+				<% sum = ScheduleEntry.find(:all, :conditions => ["user_id=? AND date=?", @user.id, day]).collect(&:hours).sum %>
+				<%= sum if sum > 0 %>
+			</th>
+			<% day = day + 1
+			end %>
+		</tr>
+		</tr>
+			<tr id="available">
+			<th>Available</th>
+			<% day = calendar.startdt
+			while day <= calendar.enddt %>
+			<td class="even<%= ' today' if Date.today == day %>">
+				<%
+					entry = AvailabilityEntry.find(:first, :conditions => ["user_id=? AND date=?", @user.id, day])
+					if (entry.nil?)
+						entry = AvailabilityEntry.new
+						entry.user_id = @user.id
+						entry.date = day
+						hours = nil
+					else
+						hours = entry.hours
+					end
+				%>
+				<% if User.current == @user || User.current.admin? %>
+					<%= text_field "availability_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => hours %>
+				<% else %>
+					<%= %Q{<input type="text" size="3" disabled="disabled" value="#{hours}" />} %>
+				<% end %>
+				<% sum = ScheduleEntry.find(:all, :conditions => ["user_id=? AND date=?", @user.id, day]).collect(&:hours).sum %>
+				<%= %Q{<input type="hidden" value="#{entry.hours + sum}" />} %>
+			</td>
+			<% day = day + 1
+			end %>
+		</tr>
 	</tfoot>
 </table>

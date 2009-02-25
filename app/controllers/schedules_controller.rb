@@ -1,11 +1,38 @@
 class SchedulesController < ApplicationController
 
+
+	############################################################################
+	# Initialization
+	############################################################################
+
+
 	# Initialize the controller
 	before_filter :require_login
 	before_filter :save_entries, :only => [:edit]
 	include SchedulesHelper
 
 
+	############################################################################
+	# Class methods
+	############################################################################
+	
+	
+	# Return a list of the projects the user has permission to view schedules in
+	def self.visible_projects
+		Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_schedules))
+	end
+	
+	# Return a list of the users in the given projects which have permission to view schedules
+	def self.visible_users(members)		
+		members.select {|m| m.role.allowed_to?(:view_schedules)}.collect {|m| m.user}.uniq.sort
+	end
+
+
+	############################################################################
+	# Public actions
+	############################################################################
+	
+	
 	# Given a specific month, show the projects and users that the current user is
 	# allowed to see and provide links to edit based on specific dates, projects or
 	# users.
@@ -23,6 +50,7 @@ class SchedulesController < ApplicationController
 		# Retrieve the associated schedule_entries
 		@projects = visible_projects.sort
 		@projects = @projects & @user.projects unless @user.nil?
+		@projects = @projects & [@project] unless @project.nil?
 		@users = visible_users(@projects.collect(&:members).flatten.uniq) if @project.nil?
 		@users = visible_users(@project.members) unless @project.nil?
 		
@@ -38,9 +66,10 @@ class SchedulesController < ApplicationController
 			render :action => 'index', :layout => false if request.xhr?
 			render :action => 'index' unless request.xhr?
 		else
-			render_403
+			deny_access
 		end
 	end
+	
 	
 	# View only the times in which users are available
 	def available
@@ -69,7 +98,7 @@ class SchedulesController < ApplicationController
 		
 		# If we couldn't find any users or projects, then we don't have access
 		if @projects.size == 0 || @users.size == 0
-			render_403
+			deny_access
 			return
 		end
 		
@@ -91,7 +120,10 @@ class SchedulesController < ApplicationController
 		render :layout => !request.xhr?
 	end
 	
-		
+	
+	############################################################################
+	# Private methods
+	############################################################################
 	private
 	
 	
@@ -107,7 +139,9 @@ class SchedulesController < ApplicationController
 	end
 
 
-	#
+	# Given a set of schedule entries, test the current user's access to edit
+	# each. If the user has sufficient permissions, remove the old entry and
+	# replace it with the new one. Update the availability entry accordingly.
 	def save_schedule_entries
 		params[:schedule_entry].each do |user_id, project_ids|
 			user = User.find(user_id)
@@ -154,7 +188,7 @@ class SchedulesController < ApplicationController
 	end
 	
 	
-	#
+	# Given a set of availability entries, save them given sufficient access.
 	def save_availability_entries
 		params[:availability_entry].each do |user_id, dates|
 			user = User.find(user_id)
@@ -180,13 +214,13 @@ class SchedulesController < ApplicationController
 	end
 	
 	
-	# Return a list of the projects the user has permission to view schedules in
+	############################################################################
+	# Instance method interfaces to class methods
+	############################################################################
 	def visible_projects
-		Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_schedules))
+		self.class.visible_projects
 	end
-	
-	# Return a list of the users in the given projects which have permission to view schedules
 	def visible_users(members)		
-		members.select {|m| m.role.allowed_to?(:view_schedules)}.collect {|m| m.user}.uniq.sort
+		self.class.visible_users(members)
 	end
 end

@@ -1,6 +1,12 @@
-<table class="cal schedule_entry-cal">
+<table class="cal schedule_entry_cal">
 	<thead>
-			<tr><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%>, <br/><%= month_name((calendar.startdt+i).month) %> <%= (calendar.startdt+i).day %></th><% end %></tr>
+		<tr>
+			<% day = calendar.startdt %>
+			<% while day <= calendar.enddt %>
+				<th><%= day_name(day.wday) %>, <br/><%= month_name(day.month) %> <%= day.day %></th>
+			<% day = day + 1
+			end %>
+		</tr>
 	</thead>
 	<tbody>
 		<tr>
@@ -22,4 +28,21 @@
 			end %>
 		</tr>
 	</tbody>
+	<tfoot>
+		<tr>
+			<% entries = @viewing_availability ? @availability_entries : @schedule_entries %>
+			<% day = calendar.startdt %>
+			<% while day <= calendar.enddt %>
+				<th>
+					<% sum = entries.entries_by_day(day).collect(&:hours).sum %>
+					<%= sum if sum > 0 %>
+					<% if !@viewing_availability %>
+						<% available_sum = @availability_entries.entries_by_day(day).collect(&:hours).sum %>
+						<%= "<em>(+"+available_sum.to_s+")</em>" if available_sum > 0 %>
+					<% end %>
+				</th>
+			<% day = day + 1
+			end %>
+		</tr>
+	</tfoot>
 </table>
