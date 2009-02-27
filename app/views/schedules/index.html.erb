@@ -22,8 +22,8 @@
 </fieldset>
 
 <p style="float:right; margin:0px;">
-	<%= link_to_remote ('&#171; Previous week'), {:update => "content", :url => { :date => @date - 7 }} %> |
-	<%= link_to_remote ('Next week &#187;'), {:update => "content", :url => { :date => @date + 7 }} %>
+	<%= link_to_remote ("&#171; #{l(:label_previous)} #{l(:label_week).downcase}"), {:update => "content", :url => { :date => @date - 7 }} %> |
+	<%= link_to_remote ("#{l(:label_next)} #{l(:label_week).downcase} &#187;"), {:update => "content", :url => { :date => @date + 7 }} %>
 </p>
 
 <p class="buttons">

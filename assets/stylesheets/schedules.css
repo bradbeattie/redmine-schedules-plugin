@@ -6,3 +6,4 @@ table.schedule_entry_grid input { text-align: center; }
 table.schedule_entry_cal ul { list-style-type: none; padding: 0; margin: 0.5em }
 table.schedule_entry_cal li {  }
 table.schedule_entry_cal div { padding: 0.5em; margin-bottom: 0.5em; }
+span.schedule_available { white-space: nowrap; }

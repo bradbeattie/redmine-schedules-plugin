@@ -1,48 +1,48 @@
+<%
+	user_entries = @schedule_entries.group_by {|entry| entry.user_id}
+%>
 <table class="cal schedule_entry_grid">
 	<thead>
 		<tr><td></td><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%></th><% end %></tr>
 	</thead>
 	<tbody>
 		<% @users.each do |user| %>
-		<tr>
-			<%= "<th>#{user}</th>" %>
-			<% day = calendar.startdt
-			while day <= calendar.enddt %>
-			<td class="even<%= ' today' if Date.today == day %>">
-				<%
-					entry = ScheduleEntry.find(:first, :conditions => ["project_id=? AND user_id=? AND date=?", @project.id, user.id, day])
-					if (entry.nil?)
-						entry = ScheduleEntry.new
-						entry.project_id = @project.id
-						entry.user_id = user.id
-						entry.date = day
-						hours = nil
-					else
-						hours = entry.hours
-					end
-				%>
-				<% if User.current.allowed_to?(:edit_all_schedules, @project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, @project)) %>
-					<%= text_field "schedule_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => hours %>
-				<% else %>
-					<%= %Q{<input type="text" size="3" disabled="disabled" value="#{hours}" />} %>
+			<% date_entries = user_entries[user.id].nil? ? [] : user_entries[user.id].index_by {|entry| entry.date.ajd} %>
+			<tr>
+				<%= "<th>#{user}</th>" %>
+				<% (calendar.startdt..calendar.enddt).each do |day| %>
+					<td class="even<%= ' today' if Date.today == day %>">
+						<%
+							if date_entries[day.ajd].nil?
+								entry = ScheduleEntry.new
+								entry.project_id = @project.id
+								entry.user_id = user.id
+								entry.date = day
+								hours = nil
+							else
+								entry = date_entries[day.ajd]
+								hours = entry.hours
+							end
+						%>
+						<% if User.current.allowed_to?(:edit_all_schedules, @project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, @project)) || User.current.admin? %>
+							<%= text_field "schedule_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => hours %>
+						<% else %>
+							<%= %Q{<input type="text" size="3" disabled="disabled" value="#{hours}" />} %>
+						<% end %>
+					</td>
 				<% end %>
-			</td>
-			<% day = day + 1
-			end %>
-		</tr>
+			</tr>
 		<% end %>
 	</tbody>
 	<tfoot>
 		<tr>
 			<th>Totals</th>
-			<% day = calendar.startdt
-			while day <= calendar.enddt %>
-			<th class="even<%= ' today' if Date.today == day %>">
-				<% sum = ScheduleEntry.find(:all, :conditions => ["project_id=? AND date=?", @project.id, day]).collect(&:hours).sum %>
-				<%= sum if sum > 0 %>
-			</th>
-			<% day = day + 1
-			end %>
+				<% (calendar.startdt..calendar.enddt).each do |day| %>
+				<th class="even<%= ' today' if Date.today == day %>">
+					<% sum = @schedule_entries.collect {|e| e.hours if e.date == day }.compact.sum %>
+					<%= sum if sum > 0 %>
+				</th>
+			<% end %>
 		</tr>
 	</tfoot>
 </table>
