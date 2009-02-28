@@ -5,7 +5,7 @@
 </div>
 
 <h2>
-	<%= l(:label_user_schedule, link_to_user(@user)) unless @user.nil? %>
+	<%= l(:label_user_schedule, :user => link_to_user(@user)) unless @user.nil? %>
 	<%= l(:label_project_schedule) unless @project.nil? %>
 	<%= l(:label_availability_schedule) if @viewing_availability %>
 	<%= l(:label_global_schedule) if @user.nil? && @project.nil? && !@viewing_availability %>
@@ -41,7 +41,7 @@
 
 <%= render :partial => 'calendar', :locals => {:calendar => @calendar} %>
 			
-<% html_title(l(:label_calendar)) -%>
+<% html_title(l(:label_schedule_index)) -%>
 
 <% content_for :header_tags do %>
     <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>

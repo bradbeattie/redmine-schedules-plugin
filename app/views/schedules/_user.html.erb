@@ -37,7 +37,7 @@
 	</tbody>
 	<tfoot>
 		<tr>
-			<th>Totals</th>
+			<th><%= l(:label_total) %></th>
 			<% (calendar.startdt..calendar.enddt).each do |day| %>
 				<th class="even<%= ' today' if Date.today == day %>">
 					<% sum = @schedule_entries.collect {|e| e.hours if e.date == day }.compact.sum %>
@@ -47,7 +47,7 @@
 		</tr>
 		<tr id="available">
 			<% date_entries = @availability_entries.index_by {|entry| entry.date.ajd} %>
-			<th>Available</th>
+			<th><%= l(:label_schedules_available) %></th>
 			<% (calendar.startdt..calendar.enddt).each do |day| %>
 				<td class="even<%= ' today' if Date.today == day %>">
 					<%

@@ -36,7 +36,7 @@
 	</tbody>
 	<tfoot>
 		<tr>
-			<th>Totals</th>
+			<th><%= l(:label_total) %></th>
 				<% (calendar.startdt..calendar.enddt).each do |day| %>
 				<th class="even<%= ' today' if Date.today == day %>">
 					<% sum = @schedule_entries.collect {|e| e.hours if e.date == day }.compact.sum %>

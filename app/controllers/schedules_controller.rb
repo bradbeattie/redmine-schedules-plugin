@@ -145,10 +145,10 @@ class SchedulesController < ApplicationController
 	# that we want to keep in sync.
 
   def report
-    @available_criterias = { 'project' => {:sql => "#{ScheduleEntry.table_name}.project_id",
+    @available_criterias = { 'project' => {:sql => "IFNULL(#{ScheduleEntry.table_name}.project_id, #{TimeEntry.table_name}.project_id)",
                                           :klass => Project,
                                           :label => :label_project},
-                             'member' => {:sql => "#{ScheduleEntry.table_name}.user_id",
+                             'member' => {:sql => "IFNULL(#{ScheduleEntry.table_name}.user_id, #{TimeEntry.table_name}.user_id)",
                                          :klass => User,
                                          :label => :label_member}
                            }
@@ -166,14 +166,30 @@ class SchedulesController < ApplicationController
       sql_select = @criterias.collect{|criteria| @available_criterias[criteria][:sql] + " AS " + criteria}.join(', ')
       sql_group_by = @criterias.collect{|criteria| @available_criterias[criteria][:sql]}.join(', ')
       
-      sql = "SELECT #{sql_select}, YEAR(date) as tyear, MONTH(date) as tmonth, WEEK(date, 1) as tweek, date, SUM(hours) AS hours"
+      sql = "SELECT #{sql_select}, IFNULL(YEAR(date),tyear) as tyear, IFNULL(MONTH(date), tmonth) as tmonth, IFNULL(WEEK(date, 1), tweek) as tweek, IFNULL(date, spent_on) as date, SUM(#{ScheduleEntry.table_name}.hours) AS hours, SUM(#{TimeEntry.table_name}.hours) AS logged_hours"
       sql << " FROM #{ScheduleEntry.table_name}"
+      sql << " LEFT JOIN #{TimeEntry.table_name} ON #{ScheduleEntry.table_name}.project_id = #{TimeEntry.table_name}.project_id"
+      sql << "   AND #{ScheduleEntry.table_name}.user_id = #{TimeEntry.table_name}.user_id"
+      sql << "   AND #{ScheduleEntry.table_name}.date = #{TimeEntry.table_name}.spent_on"
       sql << " LEFT JOIN #{Project.table_name} ON #{ScheduleEntry.table_name}.project_id = #{Project.table_name}.id"
       sql << " WHERE"
       sql << " (%s) AND" % @project.project_condition(Setting.display_subprojects_issues?) if @project
       sql << " (%s) AND" % Project.allowed_to_condition(User.current, :view_schedules)
       sql << " (date BETWEEN '%s' AND '%s')" % [ActiveRecord::Base.connection.quoted_date(@from.to_time), ActiveRecord::Base.connection.quoted_date(@to.to_time)]
       sql << " GROUP BY #{sql_group_by}, tyear, tmonth, tweek, date"
+      sql << " UNION "
+      sql << "SELECT #{sql_select}, IFNULL(YEAR(date),tyear) as tyear, IFNULL(MONTH(date), tmonth) as tmonth, IFNULL(WEEK(date, 1), tweek) as tweek, IFNULL(date, spent_on) as date, SUM(#{ScheduleEntry.table_name}.hours) AS hours, SUM(#{TimeEntry.table_name}.hours) AS logged_hours"
+      sql << " FROM #{ScheduleEntry.table_name}"
+      sql << " RIGHT JOIN #{TimeEntry.table_name} ON #{ScheduleEntry.table_name}.project_id = #{TimeEntry.table_name}.project_id"
+      sql << "   AND #{ScheduleEntry.table_name}.user_id = #{TimeEntry.table_name}.user_id"
+      sql << "   AND #{ScheduleEntry.table_name}.date = #{TimeEntry.table_name}.spent_on"
+      sql << " LEFT JOIN #{Project.table_name} ON #{TimeEntry.table_name}.project_id = #{Project.table_name}.id"
+      sql << " WHERE"
+      sql << " date IS NULL AND"
+      sql << " (%s) AND" % @project.project_condition(Setting.display_subprojects_issues?) if @project
+      sql << " (%s) AND" % Project.allowed_to_condition(User.current, :view_schedules)
+      sql << " (spent_on BETWEEN '%s' AND '%s')" % [ActiveRecord::Base.connection.quoted_date(@from.to_time), ActiveRecord::Base.connection.quoted_date(@to.to_time)]
+      sql << " GROUP BY #{sql_group_by}, tyear, tmonth, tweek, spent_on"
       
       @hours = ActiveRecord::Base.connection.select_all(sql)
       
@@ -229,7 +245,7 @@ class SchedulesController < ApplicationController
     
     cond = ARCondition.new
     if @project.nil?
-      cond << Project.allowed_to_condition(User.current, :view_time_entries)
+      cond << Project.allowed_to_condition(User.current, :view_schedules)
     end
     
     retrieve_date_range
@@ -436,8 +452,15 @@ class SchedulesController < ApplicationController
     end
     
     @from, @to = @to, @from if @from && @to && @from > @to
-    @from ||= (ScheduleEntry.minimum(:date, :include => :project, :conditions => Project.allowed_to_condition(User.current, :view_time_entries)) || Date.today) - 1
-    @to   ||= (ScheduleEntry.maximum(:date, :include => :project, :conditions => Project.allowed_to_condition(User.current, :view_time_entries)) || Date.today)
+    
+    schedule_entry_minimum = ScheduleEntry.minimum(:date, :include => :project, :conditions => Project.allowed_to_condition(User.current, :view_schedules))
+    schedule_entry_maximum = ScheduleEntry.maximum(:date, :include => :project, :conditions => Project.allowed_to_condition(User.current, :view_schedules))
+    time_entry_minimum = TimeEntry.minimum(:spent_on, :include => :project, :conditions => Project.allowed_to_condition(User.current, :view_time_entries))
+    time_entry_maximum = TimeEntry.maximum(:spent_on, :include => :project, :conditions => Project.allowed_to_condition(User.current, :view_time_entries))
+    minimums = [Date.today, schedule_entry_minimum, time_entry_minimum].compact.sort;
+    maximums = [Date.today, schedule_entry_maximum, time_entry_maximum].compact.sort;
+    @from ||= minimums.first - 1
+    @to   ||= maximums.last
   end
   
 	  
@@ -445,7 +468,7 @@ class SchedulesController < ApplicationController
     if !params[:project_id].blank?
       @project = Project.find(params[:project_id])
     end
-    deny_access unless User.current.allowed_to?(:view_time_entries, @project, :global => true)
+    deny_access unless User.current.allowed_to?(:view_schedules, @project, :global => true)
   end
 ##----------------------------------------------------------------------------##
 	

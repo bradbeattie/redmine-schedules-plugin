@@ -6,10 +6,6 @@
 	# little as possible as it's effectively a branch that we want to keep
 	# in sync.
 %>
-<div class="contextual">
-<%= link_to_if_authorized l(:button_log_time), {:controller => 'timelog', :action => 'edit', :project_id => @project}, :class => 'icon icon-time-add' %>
-</div>
-
 <%= render_timelog_breadcrumb %>
 
 <h2><%= l(:label_schedules_details) %></h2>
@@ -35,7 +31,7 @@ already in the URI %>
 <% end %>
 <% end %>
 
-<% html_title l(:label_spent_time), l(:label_details) %>
+<% html_title l(:label_schedules_index), l(:label_details) %>
 
 <% content_for :header_tags do %>
     <%= auto_discovery_link_tag(:atom, {:format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>

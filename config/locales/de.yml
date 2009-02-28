@@ -1,0 +1,17 @@
+de:
+  label_schedules_my: Mein Kalender
+  label_schedules_report: Kalender Report
+  label_schedules_details: Kalender Details
+  label_schedules_index: Kalender
+  label_schedules_projects: Projekt Kalender
+  label_schedules_users: Nutzer Kalender
+  label_schedules_send_update: Benachrichtige Nutzer über updates in ihren Kalendern 
+  label_schedules_updated: Kalender upgedated.
+  label_schedule_edit: Bearbeite Kalender für {{target}}
+  label_f_short_hour: %.0f Stunde
+  label_f_short_hour_plural: %.0f Stunden
+  label_user_schedule: "{{user}}'s Kalender"
+  label_project_schedule: Kalender
+  label_availability_schedule: Kalender Verfügbarkeit
+  label_global_schedule: Alle Kalender
+  label_schedules_available: Verfügbar

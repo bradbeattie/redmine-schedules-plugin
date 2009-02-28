@@ -1,0 +1,17 @@
+he:
+  label_schedules_my: המשימות שלי
+  label_schedules_report: דוח משימות
+  label_schedules_details: פרטי משימה
+  label_schedules_index: משימות
+  label_schedules_projects: משימות פרוייקט
+  label_schedules_users: משימוות משתמש
+  label_schedules_send_update: שלח עידכוני משימות למשתמש
+  label_schedules_updated: משימות מעודכנות
+  label_schedule_edit: '{{target}} עידכון משימה עבור'
+  label_f_short_hour: %.0f שעה
+  label_f_short_hour_plural: %.0f שעות
+  label_user_schedule: '{{user}} משימות של '
+  label_project_schedule: משימות
+  label_schedules_available: פנוי
+  label_availability_schedule: פנוי למשימות
+  label_global_schedule: כל המשימות

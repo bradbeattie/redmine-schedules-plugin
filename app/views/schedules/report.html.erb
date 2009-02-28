@@ -1,3 +1,7 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>
+<% end %>
+
 <%
 	# This view is based off of Redmine's timelog. It has been modified
 	# to accommodate the needs of the Schedules plugin. In the event that
@@ -6,10 +10,6 @@
 	# little as possible as it's effectively a branch that we want to keep
 	# in sync.
 %>
-<div class="contextual">
-<%= link_to_if_authorized l(:button_log_time), {:controller => 'timelog', :action => 'edit', :project_id => @project, :issue_id => @issue}, :class => 'icon icon-time-add' %>
-</div>
-
 <%= render_timelog_breadcrumb %>
 
 <h2><%= l(:label_schedules_report) %></h2>
@@ -56,6 +56,7 @@
   <th class="period" width="<%= columns_width %>%"><%= period %></th>
 <% end %>
   <th class="total" width="<%= columns_width %>%"><%= l(:label_total) %></th>
+  <th class="total"><%= l(:label_spent_time) %></th>
 </tr>
 </thead>
 <tbody>
@@ -64,11 +65,16 @@
   <td><%= l(:label_total) %></td>
   <%= '<td></td>' * (@criterias.size - 1) %>
   <% total = 0 -%>
+  <% logged_total = 0 -%>
   <% @periods.each do |period| -%>
     <% sum = sum_hours(select_hours(@hours, @columns, period.to_s)); total += sum -%>
+    <% logged_sum = sum_logged_hours(select_hours(@hours, @columns, period.to_s)); logged_total += logged_sum -%>
     <td class="hours"><%= html_hours("%.2f" % sum) if sum > 0 %></td>
   <% end -%>
   <td class="hours"><%= html_hours("%.2f" % total) if total > 0 %></td>
+  <td class="hours">
+  	<%= progress_bar (logged_total/total <= 1 ? 100*logged_total/total : 100), :width => '80px', :legend => html_hours("%.0f" % logged_total) + "/" + html_hours("%.0f" % total) if total > 0 %>
+  </td>
   </tr>
 </tbody>
 </table>
@@ -79,4 +85,4 @@
 <% end %>
 <% end %>
 
-<% html_title l(:label_spent_time), l(:label_report) %>
+<% html_title l(:label_schedules_index), l(:label_report) %>

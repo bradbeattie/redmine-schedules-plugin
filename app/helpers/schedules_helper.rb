@@ -28,6 +28,14 @@ module SchedulesHelper
     sum
   end
   
+  def sum_logged_hours(data)
+    sum = 0
+    data.each do |row|
+      sum += row['logged_hours'].to_f
+    end
+    sum
+  end
+  
   def options_for_period_select(value)
     options_for_select([[l(:label_all_time), 'all'],
                         [l(:label_today), 'today'],
