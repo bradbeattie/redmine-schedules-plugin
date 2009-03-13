@@ -18,13 +18,13 @@
 						<% if !@viewing_availability %>
 							<% if !schedule_entries_by_day[day].nil? %>
 								<% schedule_entries_by_day[day].sort.each do |entry| %>
-									<%= render :partial => 'schedule_entry', :locals => {:entry => entry, :day => day} %>
+									<%= render :partial => 'schedules/schedule_entry', :locals => {:entry => entry, :day => day} %>
 								<% end %>
 							<% end %>
 						<% end %>
 						<% if !availability_entries_by_day[day].nil? %>
 							<% availability_entries_by_day[day].sort.each do |entry| %>
-								<%= render :partial => 'availability_entry', :locals => {:entry => entry, :day => day} %>
+								<%= render :partial => 'schedules/availability_entry', :locals => {:entry => entry, :day => day} %>
 							<% end %>
 						<% end %>
 					</ul>

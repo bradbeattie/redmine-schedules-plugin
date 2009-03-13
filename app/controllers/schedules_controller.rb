@@ -397,8 +397,7 @@ class SchedulesController < ApplicationController
 	def get_availability_entries
 		common_restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
 		common_restrictions << " AND user_id = " + @user.id.to_s unless @user.nil?
-		availability_restrictions = " AND true"
-		availability_restrictions << " AND user_id IN ("+@project.members.collect {|member| member.user.id.to_s }.join(',')+")" unless @project.nil?
+		availability_restrictions = " AND user_id IN ("+@project.members.collect {|member| member.user.id.to_s }.join(',')+")" unless @project.nil?
 		AvailabilityEntry.find(:all, :conditions => common_restrictions + availability_restrictions)
 	end
 		

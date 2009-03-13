@@ -1,5 +1,5 @@
-<li class="availability_entry" style="min-height: <%= 3.2*entry.hours %>em">
-	<div title="<%= l(:label_f_hour, :value => entry.hours) %>" style="min-height: <%= 3.2*entry.hours - 1.9 %>em; <%= entry.style(@user.nil?, !@viewing_availability) %>">
+<li class="availability_entry" style="min-height: <%= 2.2*entry.hours %>em">
+	<div title="<%= l(:label_f_hour, :value => entry.hours) %>" style="min-height: <%= 2.2*entry.hours - 1.9 %>em; <%= entry.style(@user.nil?, !@viewing_availability) %>">
 		<% if !@viewing_availability %>
 			<em><%= link_to l(:label_schedules_available), :controller => 'schedules', :action => 'available', :date => day %></em>
 		<% end %>

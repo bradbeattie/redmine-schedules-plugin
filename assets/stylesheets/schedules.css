@@ -5,7 +5,8 @@ table.schedule_entry_grid td { text-align: center; vertical-align: middle; }
 table.schedule_entry_grid input { text-align: center; }
 table.schedule_entry_cal ul { list-style-type: none; padding: 0; margin: 0.5em }
 table.schedule_entry_cal li {  }
-table.schedule_entry_cal div { padding: 0.5em; margin-bottom: 0.5em; }
+table.schedule_entry_cal div { padding: 0.5em; margin-bottom: 0.5em; line-height: 1em; }
 span.schedule_available { white-space: nowrap; }
 td.hours table.progress { float: right; margin: 1px 0 1px 6px; }
+td.hours p.pourcent { font-size: inherit; }
 td.underscheduled table.progress td.closed { background: #e0dbba none repeat scroll 0%; }
