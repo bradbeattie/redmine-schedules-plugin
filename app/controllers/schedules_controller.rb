@@ -384,21 +384,21 @@ class SchedulesController < ApplicationController
 	# Get all schedule entries between two dates, possibly restricted by users
 	# and/or probjects.
 	def get_schedule_entries
-		common_restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
-		common_restrictions << " AND user_id = " + @user.id.to_s unless @user.nil?
-		schedule_restrictions = " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")"
-		schedule_restrictions << " AND project_id = " + @project.id.to_s unless @project.nil?
-		ScheduleEntry.find(:all, :conditions => common_restrictions + schedule_restrictions)
+		restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
+		restrictions << " AND user_id = " + @user.id.to_s unless @user.nil?
+		restrictions << " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")"
+		restrictions << " AND project_id = " + @project.id.to_s unless @project.nil?
+		ScheduleEntry.find(:all, :conditions => restrictions)
 	end
 	
 	
 	# Get all availability entries between two dates, possibly restricted by
 	# users and/or probjects.
 	def get_availability_entries
-		common_restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
-		common_restrictions << " AND user_id = " + @user.id.to_s unless @user.nil?
-		availability_restrictions = " AND user_id IN ("+@project.members.collect {|member| member.user.id.to_s }.join(',')+")" unless @project.nil?
-		AvailabilityEntry.find(:all, :conditions => common_restrictions + availability_restrictions)
+		restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
+		restrictions << " AND user_id = " + @user.id.to_s unless @user.nil?
+		restrictions << " AND user_id IN ("+@project.members.collect {|member| member.user.id.to_s }.join(',')+")" unless @project.nil?
+		AvailabilityEntry.find(:all, :conditions => restrictions)
 	end
 		
 ##----------------------------------------------------------------------------##
