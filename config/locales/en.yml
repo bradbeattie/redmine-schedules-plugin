@@ -15,3 +15,10 @@ en:
   label_schedules_available: Available
   label_availability_schedule: Schedule availabilities
   label_global_schedule: All schedules
+  label_schedules_estimate: Estimate
+  label_schedules_estimate_updated: Issues and version dates updated.
+  label_schedules_disclaimer: Saving the generated dates will affect all of the listed issues.
+  error_schedules_estimate_unestimated_issues: Ensure all issues in this version have estimated times.
+  error_schedules_estimate_unassigned_issues: Ensure all issues in this version are assigned.
+  error_schedules_estimate_open_interversion_parents: Ensure all open issue relations are in the version.
+  error_schedules_estimate_project_unscheduled: This project has not been scheduled.

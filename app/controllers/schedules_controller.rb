@@ -10,6 +10,7 @@ class SchedulesController < ApplicationController
 	before_filter :require_login
 	before_filter :save_entries, :only => [:edit]
 	before_filter :find_optional_project, :only => [:report, :details]
+	before_filter :find_project, :only => [:estimate]
 	
 	# Included helpers
 	include SchedulesHelper
@@ -134,6 +135,131 @@ class SchedulesController < ApplicationController
 		
 		# Render the page
 		render :layout => !request.xhr?
+	end
+	
+	# Given a version, we want to estimate when it can be completed. Do generate
+	# this date, we need open issues to have time estimates and for assigned
+	# individuals to have scheduled time.
+	#
+	# This function makes a number of assumtions when generating the estimate that,
+	# in practice, aren't generally true. For example, issues may have multiple
+	# users addressing them or may require validation before the next step begins.
+	# Issues often have undeclared dependancies that aren't initially clear. These
+	# may affect when the version is completed.
+	#
+	# Note that this method talks about issue parents and children. These refer to
+	# to issues that are blocked or preceded by others.
+	def estimate
+		
+		# Obtain all open issues for the given version
+		@open_issues = @version.fixed_issues.collect { |issue| issue unless issue.closed? }.compact.index_by { |issue| issue.id }
+
+		# Confirm that all issues have estimates
+		if !@open_issues.collect { |issue_id, issue| issue if issue.estimated_hours.nil? }.compact.empty?
+			flash[:error] = l(:error_schedules_estimate_unestimated_issues)
+			return
+		end
+		
+		# Confirm that all issues are assigned
+		if !@open_issues.collect { |issue_id, issue| issue if issue.assigned_to.nil? }.compact.empty?
+			flash[:error] = l(:error_schedules_estimate_unassigned_issues)
+			return
+		end
+		
+		# Confirm no issues have open parents outside of this milestone
+		if !@open_issues.collect do |issue_id, issue|
+			issue.relations.collect do |relation|
+				Issue.find(
+					:first,
+					:include => :status,
+					:conditions => ["#{Issue.table_name}.id=? AND #{IssueStatus.table_name}.is_closed=? AND (#{Issue.table_name}.fixed_version_id<>? OR #{Issue.table_name}.fixed_version_id IS NULL)", relation.issue_from_id, false, @version.id]
+				) if (relation.issue_to_id == issue.id) && schedule_relation?(relation)
+			end
+		end.flatten.compact.empty?
+			flash[:error] = l(:error_schedules_estimate_open_interversion_parents)
+			return
+		end
+
+		# Obtain all assignees 
+		assignees = @open_issues.collect { |issue_id, issue| issue.assigned_to }.uniq
+		@schedule_entries = ScheduleEntry.find(
+			:all,
+			:conditions => ["user_id IN (?) AND date > NOW() AND project_id = ?", assignees.collect {|user| user.id.to_s }.join(','), @version.project.id],
+			:order => ["date"]
+		).group_by{ |entry| entry.user_id }
+		@schedule_entries = @schedule_entries.collect { |user_id, user_entries| { user_id => user_entries.index_by { |entry| entry.date } } }.first
+		if @schedule_entries.nil? || @schedule_entries.empty? || !@version.project.module_enabled?('schedule_module')
+			flash[:error] = l(:error_schedules_estimate_project_unscheduled)
+			return
+		end
+		
+		# Build issue precedence hierarchy
+		floating_issues = Set.new	# Issues with no children or parents
+		surfaced_issues = Set.new	# Issues with children, but no parents 
+		buried_issues = Set.new		# Issues with parents
+		@open_issues.each do |issue_id, issue|
+			issue.start_date = nil if issue.done_ratio == 0 
+			issue.due_date = nil
+			issue.relations.each do |relation|
+				if (relation.issue_to_id == issue.id) && schedule_relation?(relation)
+					if @open_issues.has_key?(relation.issue_from_id)
+						buried_issues.add(issue)
+						surfaced_issues.add(@open_issues[relation.issue_from_id])
+					end
+				end
+			end
+		end
+		surfaced_issues.subtract(buried_issues)
+		floating_issues = Set.new(@open_issues.values).subtract(surfaced_issues).subtract(buried_issues)
+
+		# Surface issues and schedule them
+		while !surfaced_issues.empty?
+			buried_issues.subtract(surfaced_issues)
+			
+			next_layer = Set.new	# Issues surfaced by scheduling the current layer
+			surfaced_issues.each do |surfaced_issue|
+				
+				# Schedule the surfaced issue
+				schedule_issue(surfaced_issue)
+				
+				# Move child issues to appropriate buckets
+				surfaced_issue.relations.each do |relation|
+					if (relation.issue_from_id == surfaced_issue.id) && schedule_relation?(relation) && @open_issues.include?(relation.issue_to_id) && buried_issues.include?(@open_issues[relation.issue_to_id])
+						considered_issue = @open_issues[relation.issue_to_id]
+						
+						# If the issue is blocked by buried relations, then it stays buried
+						if !considered_issue.relations.collect { |r| true if (r.issue_to_id == considered_issue.id) && schedule_relation?(r) && buried_issues.include?(@open_issues[r.issue_from_id]) }.compact.empty?
+							
+						# If the issue blocks buried relations, then it surfaces
+						elsif !considered_issue.relations.collect { |r| true if (r.issue_from_id == considered_issue.id) && schedule_relation?(r) && buried_issues.include?(@open_issues[r.issue_to_id]) }.compact.empty?
+							next_layer.add(considered_issue)
+						
+						# If the issue has no buried relations, then it floats
+						else
+							buried_issues.delete(considered_issue)
+							floating_issues.add(considered_issue)
+						end
+					end
+				end
+			end
+			surfaced_issues = next_layer
+		end
+
+		# Schedule remaining floating issues by priority
+		floating_issues.sort { |a,b| b.priority <=> a.priority }.each do |floating_issue|
+			schedule_issue(floating_issue)
+		end
+		
+		# That's your milestone due date
+		@version.effective_date = @open_issues.collect { |issue_id, issue| issue }.max { |a,b| a.due_date <=> b.due_date }.due_date
+		
+		# Save the issues and milestone date if requested.
+		if params[:confirm_estimate]
+			@open_issues.each { |issue_id, issue| issue.save }
+			@version.save
+			flash[:notice] = l(:label_schedules_estimate_updated)
+			redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
+		end
 	end
 	
 ##----------------------------------------------------------------------------##
@@ -400,7 +526,72 @@ class SchedulesController < ApplicationController
 		restrictions << " AND user_id IN ("+@project.members.collect {|member| member.user.id.to_s }.join(',')+")" unless @project.nil?
 		AvailabilityEntry.find(:all, :conditions => restrictions)
 	end
+	
+	# Find the project associated with the given version
+	def find_project
+		@version = Version.find(params[:id])
+		@project = @version.project
+		deny_access unless User.current.allowed_to?(:edit_all_schedules, @project) && User.current.allowed_to?(:manage_versions, @project)
+	rescue ActiveRecord::RecordNotFound
+		render_404
+	end
+	
+	# Determines if a given relation will prevent another from being worked on
+	def schedule_relation?(relation)
+		return (relation.relation_type == "blocks" || relation.relation_type == "precedes")
+	end
+	
+	# This function will schedule an issue for the earliest open schedule for the
+	# issue's assignee. 
+	def schedule_issue(issue)
+
+		# Issues start no earlier than today
+		possible_start = [Date.today]
 		
+		# Find out when parent issues from this version have been tentatively scheduled for
+		possible_start << issue.relations.collect do |relation|
+			@open_issues[relation.issue_from_id] if (relation.issue_to_id == issue.id) && schedule_relation?(relation)
+		end.compact.collect do |related_issue|
+			related_issue if related_issue.fixed_version == issue.fixed_version
+		end.compact.collect do |related_issue|
+			related_issue.due_date
+		end.max
+		
+		# Find out when parent issues outside of this version are due 
+		possible_start << issue.relations.collect do |relation|
+			Issue.find(relation.issue_from_id) if (relation.issue_to_id == issue.id) && schedule_relation?(relation)
+		end.compact.collect do |related_issue|
+			related_issue if related_issue.fixed_version != issue.fixed_version
+		end.compact.collect do |related_issue|
+			related_issue.due_date unless related_issue.due_date.nil?
+		end.compact.max
+		
+		# Chew up the necessary time starting from the earliest schedule opening
+		# after the possible start dates.
+		possible_start = possible_start.compact.max
+		considered_date = @schedule_entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact.min { |a,b| a.date <=> b.date }.date
+		issue.start_date = considered_date if issue.start_date.nil?
+		hours_remaining = issue.estimated_hours * (1-issue.done_ratio)
+		while hours_remaining > 0
+			while @schedule_entries[issue.assigned_to.id][considered_date].nil? && !@schedule_entries[issue.assigned_to.id].empty?
+				considered_date += 1
+			end
+			raise "Not enough time scheduled for #{issue.assigned_to}" if @schedule_entries[issue.assigned_to.id][considered_date].nil?
+			if hours_remaining > @schedule_entries[issue.assigned_to.id][considered_date].hours
+				hours_remaining -= @schedule_entries[issue.assigned_to.id][considered_date].hours
+				@schedule_entries[issue.assigned_to.id][considered_date].hours = 0
+			else
+				@schedule_entries[issue.assigned_to.id][considered_date].hours -= hours_remaining
+				hours_remaining = 0
+			end
+			@schedule_entries[issue.assigned_to.id].delete(considered_date) if @schedule_entries[issue.assigned_to.id][considered_date].hours == 0
+		end
+		issue.due_date = considered_date
+		
+		# Store the modified issue back to the global
+		@open_issues[issue.id] = issue
+	end
+
 ##----------------------------------------------------------------------------##
 	# These methods are based off of Redmine's timelog. They have been
 	# modified to accommodate the needs of the Schedules plugin. In the
