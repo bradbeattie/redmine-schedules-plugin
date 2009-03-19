@@ -169,13 +169,14 @@ class SchedulesController < ApplicationController
 
 		# Obtain all assignees 
 		assignees = @open_issues.collect { |issue_id, issue| issue.assigned_to }.uniq
+		raise l(:error_schedules_estimate_project_unscheduled) if assignees.empty?
 		@schedule_entries = ScheduleEntry.find(
 			:all,
 			:conditions => sprintf("user_id IN (%s) AND date > NOW() AND project_id = %s", assignees.collect {|user| user.id }.join(','), @version.project.id),
 			:order => ["date"]
 		).group_by{ |entry| entry.user_id }
 		@schedule_entries.each { |user_id, user_entries| @schedule_entries[user_id] = user_entries.index_by { |entry| entry.date } }
-		raise l(:error_schedules_estimate_project_unscheduled) if @schedule_entries.nil? || @schedule_entries.empty? || !@version.project.module_enabled?('schedule_module')
+		raise l(:error_schedules_estimate_project_unscheduled) if @schedule_entries.empty? || !@version.project.module_enabled?('schedule_module')
 		
 		# Build issue precedence hierarchy
 		floating_issues = Set.new	# Issues with no children or parents
@@ -571,11 +572,10 @@ class SchedulesController < ApplicationController
 		# after the possible start dates.
 		issue.start_date = considered_date
 		while hours_remaining > 0
-			raise "No time scheduled for #{issue.assigned_to} to address #{issue}" if @schedule_entries[issue.assigned_to.id].nil?
-			while @schedule_entries[issue.assigned_to.id][considered_date].nil? && !@schedule_entries[issue.assigned_to.id].empty?
+			while !@schedule_entries[issue.assigned_to.id].nil? && @schedule_entries[issue.assigned_to.id][considered_date].nil? && !@schedule_entries[issue.assigned_to.id].empty? && (considered_date < Date.today + 365) 
 				considered_date += 1
 			end
-			raise "Not enough time scheduled for #{issue.assigned_to} to address #{issue}" if @schedule_entries[issue.assigned_to.id][considered_date].nil?
+			raise l(:error_schedules_estimate_insufficient_scheduling, :user => issue.assigned_to, :issue => issue) if @schedule_entries[issue.assigned_to.id][considered_date].nil?
 			if hours_remaining > @schedule_entries[issue.assigned_to.id][considered_date].hours
 				hours_remaining -= @schedule_entries[issue.assigned_to.id][considered_date].hours
 				@schedule_entries[issue.assigned_to.id][considered_date].hours = 0

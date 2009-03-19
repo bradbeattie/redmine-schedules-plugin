@@ -21,3 +21,4 @@ en:
   error_schedules_estimate_unassigned_issues: Ensure all issues in this version are assigned.
   error_schedules_estimate_open_interversion_parents: Ensure all open issue relations are in the version.
   error_schedules_estimate_project_unscheduled: This project has not been scheduled.
+  error_schedules_estimate_insufficient_scheduling: Not enough time scheduled for {{user}} to address {{issue}}
