@@ -154,20 +154,10 @@ class SchedulesController < ApplicationController
 		# Obtain all open issues for the given version
 		@open_issues = @version.fixed_issues.collect { |issue| issue unless issue.closed? }.compact.index_by { |issue| issue.id }
 
-		# Confirm that all issues have estimates
-		if !@open_issues.collect { |issue_id, issue| issue if issue.estimated_hours.nil? }.compact.empty?
-			flash[:error] = l(:error_schedules_estimate_unestimated_issues)
-			return
-		end
-		
-		# Confirm that all issues are assigned
-		if !@open_issues.collect { |issue_id, issue| issue if issue.assigned_to.nil? }.compact.empty?
-			flash[:error] = l(:error_schedules_estimate_unassigned_issues)
-			return
-		end
-		
-		# Confirm no issues have open parents outside of this milestone
-		if !@open_issues.collect do |issue_id, issue|
+		# Confirm that all issues have estimates, are assigned and only have parents in this version
+		raise l(:error_schedules_estimate_unestimated_issues) if !@open_issues.collect { |issue_id, issue| issue if issue.estimated_hours.nil? && (issue.done_ratio < 100) }.compact.empty?
+		raise l(:error_schedules_estimate_unassigned_issues) if !@open_issues.collect { |issue_id, issue| issue if issue.assigned_to.nil? && (issue.done_ratio < 100) }.compact.empty?
+		raise l(:error_schedules_estimate_open_interversion_parents) if !@open_issues.collect do |issue_id, issue|
 			issue.relations.collect do |relation|
 				Issue.find(
 					:first,
@@ -176,29 +166,23 @@ class SchedulesController < ApplicationController
 				) if (relation.issue_to_id == issue.id) && schedule_relation?(relation)
 			end
 		end.flatten.compact.empty?
-			flash[:error] = l(:error_schedules_estimate_open_interversion_parents)
-			return
-		end
 
 		# Obtain all assignees 
 		assignees = @open_issues.collect { |issue_id, issue| issue.assigned_to }.uniq
 		@schedule_entries = ScheduleEntry.find(
 			:all,
-			:conditions => ["user_id IN (?) AND date > NOW() AND project_id = ?", assignees.collect {|user| user.id.to_s }.join(','), @version.project.id],
+			:conditions => sprintf("user_id IN (%s) AND date > NOW() AND project_id = %s", assignees.collect {|user| user.id }.join(','), @version.project.id),
 			:order => ["date"]
 		).group_by{ |entry| entry.user_id }
-		@schedule_entries = @schedule_entries.collect { |user_id, user_entries| { user_id => user_entries.index_by { |entry| entry.date } } }.first
-		if @schedule_entries.nil? || @schedule_entries.empty? || !@version.project.module_enabled?('schedule_module')
-			flash[:error] = l(:error_schedules_estimate_project_unscheduled)
-			return
-		end
+		@schedule_entries.each { |user_id, user_entries| @schedule_entries[user_id] = user_entries.index_by { |entry| entry.date } }
+		raise l(:error_schedules_estimate_project_unscheduled) if @schedule_entries.nil? || @schedule_entries.empty? || !@version.project.module_enabled?('schedule_module')
 		
 		# Build issue precedence hierarchy
 		floating_issues = Set.new	# Issues with no children or parents
 		surfaced_issues = Set.new	# Issues with children, but no parents 
 		buried_issues = Set.new		# Issues with parents
 		@open_issues.each do |issue_id, issue|
-			issue.start_date = nil if issue.done_ratio == 0 
+			issue.start_date = nil
 			issue.due_date = nil
 			issue.relations.each do |relation|
 				if (relation.issue_to_id == issue.id) && schedule_relation?(relation)
@@ -260,6 +244,10 @@ class SchedulesController < ApplicationController
 			flash[:notice] = l(:label_schedules_estimate_updated)
 			redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
 		end
+		
+	rescue Exception => e
+		flash[:error] = e.message
+		redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
 	end
 	
 ##----------------------------------------------------------------------------##
@@ -527,6 +515,7 @@ class SchedulesController < ApplicationController
 		AvailabilityEntry.find(:all, :conditions => restrictions)
 	end
 	
+	
 	# Find the project associated with the given version
 	def find_project
 		@version = Version.find(params[:id])
@@ -536,10 +525,12 @@ class SchedulesController < ApplicationController
 		render_404
 	end
 	
+	
 	# Determines if a given relation will prevent another from being worked on
 	def schedule_relation?(relation)
 		return (relation.relation_type == "blocks" || relation.relation_type == "precedes")
 	end
+	
 	
 	# This function will schedule an issue for the earliest open schedule for the
 	# issue's assignee. 
@@ -565,18 +556,26 @@ class SchedulesController < ApplicationController
 		end.compact.collect do |related_issue|
 			related_issue.due_date unless related_issue.due_date.nil?
 		end.compact.max
+
+		# Determine the earliest possible start date for this issue
+		possible_start = possible_start.compact.max
+		if issue.done_ratio == 100 || @schedule_entries[issue.assigned_to.id].nil?
+			considered_date = possible_start + 1
+		else 
+			considered_date = @schedule_entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact.min { |a,b| a.date <=> b.date }.date
+		end
+		hours_remaining = issue.estimated_hours * ((100-issue.done_ratio)*0.01) unless issue.estimated_hours.nil?
+		hours_remaining ||= 0
 		
 		# Chew up the necessary time starting from the earliest schedule opening
 		# after the possible start dates.
-		possible_start = possible_start.compact.max
-		considered_date = @schedule_entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact.min { |a,b| a.date <=> b.date }.date
-		issue.start_date = considered_date if issue.start_date.nil?
-		hours_remaining = issue.estimated_hours * (1-issue.done_ratio)
+		issue.start_date = considered_date
 		while hours_remaining > 0
+			raise "No time scheduled for #{issue.assigned_to} to address #{issue}" if @schedule_entries[issue.assigned_to.id].nil?
 			while @schedule_entries[issue.assigned_to.id][considered_date].nil? && !@schedule_entries[issue.assigned_to.id].empty?
 				considered_date += 1
 			end
-			raise "Not enough time scheduled for #{issue.assigned_to}" if @schedule_entries[issue.assigned_to.id][considered_date].nil?
+			raise "Not enough time scheduled for #{issue.assigned_to} to address #{issue}" if @schedule_entries[issue.assigned_to.id][considered_date].nil?
 			if hours_remaining > @schedule_entries[issue.assigned_to.id][considered_date].hours
 				hours_remaining -= @schedule_entries[issue.assigned_to.id][considered_date].hours
 				@schedule_entries[issue.assigned_to.id][considered_date].hours = 0

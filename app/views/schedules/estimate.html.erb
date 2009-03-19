@@ -1,38 +1,35 @@
+<h2><%= l(:label_schedules_estimate) %></h2>
 <% form_tag({:action=> "estimate"}) do %>
-	<div class="box">
-		<fieldset id="version_estimate"><legend><%= l(:label_schedules_estimate) %></legend>
-			<table>
-				<thead>
+	<% if @open_issues && @open_issues.any? %>
+		<table class="list issues">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th><%=l(:field_tracker)%></th>
+					<th><%=l(:field_subject)%></th>
+					<th><%= l(:field_assigned_to) %></th>
+					<th><%= l(:field_start_date) %></th>
+					<th><%= l(:field_due_date) %></th>
+					<th><%= l(:field_estimated_hours) %></th>
+					<th><%= l(:field_done_ratio) %></th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @open_issues.collect { |issue_id, issue| issue }.sort { |a,b| a.due_date <=> b.due_date }.each do |issue| %>
 					<tr>
-						<th colspan="2"><%= l(:label_issue_plural) %></th>
-						<th><%= l(:field_assigned_to) %></th>
-						<th><%= l(:field_start_date) %></th>
-						<th><%= l(:field_due_date) %></th>
+						<td class="id"><%= link_to issue.id, :controller => 'issues', :action => 'show', :id => issue %></td>
+						<td class="tracker"><%=h issue.tracker %></td>
+						<td class="subject"><%= link_to h(truncate(issue.subject, :length => 60)), :controller => 'issues', :action => 'show', :id => issue %> (<%=h issue.status %>)</td>
+						<td><%= issue.assigned_to %></td>
+						<td><%= issue.start_date %></td>
+						<td><%= issue.due_date %></td>
+						<td class="estimated-hours"><%= l_hours(issue.estimated_hours) %></td>
+						<td class="progress"><%= progress_bar issue.done_ratio, :width => '80px' %></td>
 					</tr>
-				</thead>
-				<tbody>
-					<% @open_issues.collect { |issue_id, issue| issue }.sort { |a,b| a.due_date <=> b.due_date }.each do |issue| %>
-						<tr>
-							<td><%= issue.id %></td>
-							<td><%= issue.subject %></td>
-							<td><%= issue.assigned_to %></td>
-							<td><%= issue.start_date %></td>
-							<td><%= issue.due_date %></td>
-						</tr>
-					<% end %>
-				</tbody>
-				<tfoot>
-					<tr>
-						<th colspan="4"></th>
-						<th><%= @version.effective_date %></th>
-					</tr>
-				</tfoot>
-			</table>
-		</fieldset>
-	</div>
-	<div class="nodata">
-		<%= l(:label_schedules_disclaimer) %>
-	</div>
-	<%= submit_tag l(:button_save) %>
-	<%= check_box_tag "confirm_estimate", "1" %> <label for="confirm_estimate"><%= l(:label_confirmation)%></label>
+				<% end %>
+			</tbody>
+		</table>
+		<%= submit_tag l(:button_save) %>
+		<%= check_box_tag "confirm_estimate", "1" %> <label for="confirm_estimate"><%= l(:label_confirmation)%></label>
+	<% end %>
 <% end %>
