@@ -14,7 +14,8 @@
 				<tr>
 					<% (@calendar.startdt..@calendar.enddt).each do |day| %>
 						<td>
-							<%= text_field "schedule_default", day.wday, :size => 3, :value => @schedule_default.weekday_hours[day.wday] %>
+							<% hours = @schedule_default.weekday_hours[day.wday] > 0 ? @schedule_default.weekday_hours[day.wday] : "" %>
+							<%= text_field "schedule_default", day.wday, :size => 3, :value => hours %>
 						</td>
 					<% end %>
 				</tr>
@@ -24,11 +25,15 @@
 	</div>
 <% end %>
 
-<% content_for :header_tags do %>
-    <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>
-<% end %>
-
-
 <% content_for :sidebar do %>
 	<%= render :partial => 'sidebar' %>
+<% end %>
+
+<%= javascript_include_tag 'schedules_edit', :plugin => 'redmine_schedules'  %>
+
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+    <script type="text/javascript">jQuery.noConflict();</script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.5.3/jquery-ui.min.js"></script>
 <% end %>

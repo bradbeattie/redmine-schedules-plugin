@@ -24,5 +24,6 @@ en:
   error_schedules_estimate_open_interversion_parents: Ensure all open issue relations are in the version.
   error_schedules_estimate_project_unscheduled: This project has not been scheduled.
   error_schedules_estimate_insufficient_scheduling: Not enough time scheduled for {{user}} to address {{issue}}
+  error_schedules_insufficient_availability: Some user's entries could not be saved as there was not enough room in their schedules.
   button_schedules_edit: Edit schedule
   button_schedules_default_edit: Edit my default availability

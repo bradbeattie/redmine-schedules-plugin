@@ -45,6 +45,7 @@ class SchedulesController < ApplicationController
 	# allowed to see and provide links to edit based on specific dates, projects or
 	# users.
 	def index
+	
 		# Determine if we're looking at a specific user or project
 		@project = Project.find(params[:project_id]) if params[:project_id]
 		@user = User.find(params[:user_id]) if params[:user_id] 
@@ -55,7 +56,7 @@ class SchedulesController < ApplicationController
 		@date ||= Date.today
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(@date.year, @date.month, @date.day), current_language, :week)
 		
-		# Retrieve the associated schedule_entries
+		# Retrieve the associated projects and schedules
 		@projects = visible_projects.sort
 		@projects = @projects & @user.projects unless @user.nil?
 		@projects = @projects & [@project] unless @project.nil?
@@ -63,6 +64,7 @@ class SchedulesController < ApplicationController
 		@users = visible_users(@project.members) unless @project.nil?
 		@users = [@user] unless @user.nil?
 		
+		# Render the associated entries and availabilities
 		if @projects.size > 0 && @users.size > 0
 			@entries = get_entries
 			@availabilities = get_availabilities
@@ -81,17 +83,13 @@ class SchedulesController < ApplicationController
 	end
 	
 	
-	# Show the current user's default availability and, if instructed, change it
+	# Show the current user's default availability.
 	def default
-		
 		@user = User.current
-		
-		# Determine the user's current availability default
 		@schedule_default = ScheduleDefault.find_by_user_id(@user)
 		@schedule_default ||= ScheduleDefault.new 
 		@schedule_default.weekday_hours ||= [0,0,0,0,0,0,0] 
-		@schedule_default.user_id = @user
-			
+		@schedule_default.user_id = @user.id
 		@calendar = Redmine::Helpers::Calendar.new(Date.today, current_language, :week)
 	end
 	
@@ -101,13 +99,12 @@ class SchedulesController < ApplicationController
 	# have access to a row or column it shouldn't display. Likewise, if the current
 	# user can only view a cell, display it as disabled.
 	def edit
+	
 		# Get specified user or project, if any
 		@project = Project.find(params[:project_id]) if params[:project_id]
 		@projects = [@project] if params[:project_id]
 		@user = User.find(params[:user_id]) if params[:user_id]
 		@users = [@user] if params[:user_id]
-		
-		# Must edit a user or a project
 		if @project.nil? && @user.nil?
 			render_404
 			return
@@ -116,19 +113,12 @@ class SchedulesController < ApplicationController
 		# If no user or project was specified, determine them
 		@projects = @user.nil? ? visible_projects : @user.projects if @projects.nil?
 		@projects = @projects & visible_projects
-		if @user.nil?
-			@users = visible_users(@projects.collect{|p| p.members }.flatten)
-		end
-		
-		# If we couldn't find any users or projects, then we don't have access
+		@projects.sort
+		@users = visible_users(@projects.collect{|p| p.members }.flatten).sort if @user.nil?
 		if @projects.size == 0 || @users.size == 0
 			deny_access
 			return
 		end
-		
-		# Sort the projects and users
-		@projects = @projects.sort
-		@users = @users.sort
 		
 		# Parse the given date
 		@date = Date.parse(params[:date]) if params[:date]
@@ -148,7 +138,7 @@ class SchedulesController < ApplicationController
 		render :layout => !request.xhr?
 	end
 	
-	# Given a version, we want to estimate when it can be completed. Do generate
+	# Given a version, we want to estimate when it can be completed. To generate
 	# this date, we need open issues to have time estimates and for assigned
 	# individuals to have scheduled time.
 	#
@@ -438,7 +428,9 @@ class SchedulesController < ApplicationController
 	end
 	
 	
-	#
+	# Given a set of schedule entries, sift through them looking for changes in
+	# the schedule. For each change, remove the old entry and save the new one
+	# assuming sufficient access by the modifying user.
 	def save_scheduled_entries
 	
 		# Get the users and projects involved in this save 
@@ -469,24 +461,28 @@ class SchedulesController < ApplicationController
 						new_entry.date = date
 						new_entry.hours = hours
 						
-						# If we're increasing the scheduled hours, confirm there's room
-						defaults[user.id] = ScheduleDefault.new if defaults[user.id].nil?
-						available_hours = defaults[user.id].weekday_hours[date.wday]
-						
-						if (new_entry.hours > 0) && (old_entry.nil? || old_entry.hours < hours) && (user != User.current) # && (!User.current.admin)
-						 	available_hours -= new_entry.hours
-						
-							restrictions = "date = '#{date}' AND user_id = #{user.id}"
-							available_hours -= ScheduleEntry.sum(:hours, :conditions => restrictions + " AND id <> #{old_entry.id}") if available_hours >= 0
+						# Only bother if the number of hours changes
+						if (old_entry.nil? || new_entry.hours != old_entry.hours)
 							
-							closed_entry = ScheduleClosedEntry.find(:first, :conditions => restrictions) if available_hours >= 0
-							closed_hours = closed_entry.nil? ? 0 : closed_entry.hours 
-							available_hours -= closed_hours
-						end
-						if available_hours >= 0
-							save_entry(new_entry, old_entry)
-						else
-							flash[:warning] = "Some user's entries could not be saved as there was not enough room in their schedules."
+							# If we're increasing the scheduled hours, confirm there's room
+							defaults[user.id] = ScheduleDefault.new if defaults[user.id].nil?
+							available_hours = defaults[user.id].weekday_hours[date.wday]
+							
+							if (new_entry.hours > 0) && (old_entry.nil? || old_entry.hours < hours) && (user != User.current) # && (!User.current.admin)
+							 	available_hours -= new_entry.hours
+							
+								restrictions = "date = '#{date}' AND user_id = #{user.id}"
+								available_hours -= ScheduleEntry.sum(:hours, :conditions => restrictions + " AND id <> #{old_entry.id}") if available_hours >= 0
+								
+								closed_entry = ScheduleClosedEntry.find(:first, :conditions => restrictions) if available_hours >= 0
+								closed_hours = closed_entry.nil? ? 0 : closed_entry.hours 
+								available_hours -= closed_hours
+							end
+							if available_hours >= 0
+								save_entry(new_entry, old_entry)
+							else
+								flash[:warning] = l(:error_schedules_insufficient_availability)
+							end
 						end 
 					end
 				end
@@ -495,8 +491,10 @@ class SchedulesController < ApplicationController
 	end
 	
 	
-	#
+	# Given a new schedule entry and the entry that it replaces, save the first
+	# and delete the second. Send out a notification if necessary.  
 	def save_entry(new_entry, old_entry)
+	
 		# Send mail if editing another user
 		if (User.current != new_entry.user) && (params[:notify]) && (old_entry.nil? || new_entry.hours != old_entry.hours) && (new_entry.user.allowed_to?(:view_schedules, project))
 			ScheduleMailer.deliver_future_changed(User.current, new_entry.user, new_entry.project, new_entry.date, new_entry.hours) 
@@ -508,6 +506,8 @@ class SchedulesController < ApplicationController
 	end
 	
 	
+	# Save schedule closed entries if the owning user or an admin is requesting
+	# the change.
 	def save_closed_entries
 
 		# Get the users and projects involved in this save 
@@ -531,13 +531,13 @@ class SchedulesController < ApplicationController
 		end
 	end
 
+
 	# Save the given default availability if one was provided	
 	def save_default
 		if request.post? && params[:commit]
 		
-			@user = User.current
-		
 			# Determine the user's current availability default
+			@user = User.current
 			@schedule_default = ScheduleDefault.find_by_user_id(@user.id)
 			@schedule_default ||= ScheduleDefault.new 
 			@schedule_default.weekday_hours ||= [0,0,0,0,0,0,0] 
