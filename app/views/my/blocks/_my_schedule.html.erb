@@ -5,11 +5,12 @@
 	@calendar = Redmine::Helpers::Calendar.new(@date, current_language, :week)
 	@projects = Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_schedules))
 	
-	common_restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
-	common_restrictions << " AND user_id = #{User.current.id}"
-	schedule_restrictions = " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")"
+	restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
+	restrictions << " AND user_id = #{User.current.id}"
+	restrictions << " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")"
 	
-	@entries = ScheduleEntry.find(:all, :conditions => common_restrictions + schedule_restrictions)
+	@entries = ScheduleEntry.find(:all, :conditions => restrictions)
+	@availabilities = Hash.new
 %>
 
 <%= render :partial => 'schedules/calendar', :locals => {:calendar => @calendar } %>

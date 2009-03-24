@@ -19,9 +19,9 @@
 								<%= render :partial => 'schedules/schedule_entry', :locals => {:entry => entry, :day => day} %>
 							<% end %>
 						<% end %>
-						<% @users.each do |user| %>
-							<%= render :partial => 'schedules/availability', :locals => {:user => user, :hours => @availabilities[day][user.id], :day => day } %>
-						<% end %>
+						<% @availabilities[day].each do |user_id, hours| %>
+							<%= render :partial => 'schedules/availability', :locals => {:user_id => user_id, :hours => hours, :day => day } %>
+						<% end unless @availabilities.nil? || @availabilities.empty? %>
 					</ul>
 				</td>
 			<% end %>
