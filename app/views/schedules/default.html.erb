@@ -1,0 +1,34 @@
+<%= breadcrumb link_to(l(:label_schedules_my), {:controller => 'schedules', :action => 'my' } ) %>
+
+<h2>
+	<%= l(:label_schedules_default, :target => link_to_user(@user)) %>
+</h2>
+
+<% form_tag({:action=> "default"}) do %>
+	<div class="box">
+		<table class="cal schedule_entry_grid">
+			<thead>
+				<tr><% 7.times do |i| %><th><%= day_name( (@calendar.first_wday+i)%7 )%></th><% end %></tr>
+			</thead>
+			<tbody>
+				<tr>
+					<% (@calendar.startdt..@calendar.enddt).each do |day| %>
+						<td>
+							<%= text_field "schedule_default", day.wday, :size => 3, :value => @schedule_default.weekday_hours[day.wday] %>
+						</td>
+					<% end %>
+				</tr>
+			</tbody>
+		</table>
+		<%= submit_tag l(:button_save) %>
+	</div>
+<% end %>
+
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>
+<% end %>
+
+
+<% content_for :sidebar do %>
+	<%= render :partial => 'sidebar' %>
+<% end %>

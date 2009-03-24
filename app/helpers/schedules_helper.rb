@@ -8,13 +8,30 @@
 module SchedulesHelper
   include ApplicationHelper
   
-  def render_timelog_breadcrumb
-    links = []
-    links << link_to(l(:label_project_all), {:project_id => nil, :issue_id => nil})
-    links << link_to(h(@project), {:project_id => @project, :issue_id => nil}) if @project
-    links << link_to_issue(@issue) if @issue
-    breadcrumb links
-  end
+	def entry_style(color_id, grey = false)
+	
+		if grey
+			red = 192
+			green = 192
+			blue = 192
+		else
+			red   = ((Math.sin(color_id*2.6+Math::PI*0/3)+5)*32).to_i + 56
+			green = ((Math.sin(color_id*2.6+Math::PI*2/3)+5)*32).to_i + 56
+			blue  = ((Math.sin(color_id*2.6+Math::PI*4/3)+5)*32).to_i + 56
+		end
+
+		result = "background: rgb(#{red.to_s},#{green.to_s},#{blue.to_s}); "
+		result << "border: 1px solid rgb(#{(red/2).to_s},#{(green/2).to_s},#{(blue/2).to_s}); "
+		result 
+	end
+
+##----------------------------------------------------------------------------##
+	# These methods are based off of Redmine's timelog. They have been
+	# modified to accommodate the needs of the Schedules plugin. In the
+	# event that changes are made to the original, these methods will need
+	# to be updated accordingly. As such, efforts should be made to modify
+	# these methods as little as possible as they're effectively a branch
+	# that we want to keep in sync.
   
   def select_hours(data, criteria, value)
     data.select {|row| row[criteria] == value}
@@ -133,4 +150,7 @@ module SchedulesHelper
     @ic ||= Iconv.new(l(:general_csv_encoding), 'UTF-8')
     begin; @ic.iconv(s.to_s); rescue; s.to_s; end
   end
+  
+##----------------------------------------------------------------------------##
+
 end

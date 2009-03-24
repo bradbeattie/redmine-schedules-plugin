@@ -1,6 +1,5 @@
 <%
-	schedule_entries_by_day = @schedule_entries.group_by {|entry| entry.date}
-	availability_entries_by_day = @availability_entries.group_by {|entry| entry.date}
+	schedule_entries_by_day = @entries.group_by {|entry| entry.date}
 %>
 <table class="cal schedule_entry_cal">
 	<thead>
@@ -15,17 +14,13 @@
 			<% (calendar.startdt..calendar.enddt).each do |day| %>
 				<td class="even<%= ' today' if Date.today == day %>">
 					<ul>
-						<% if !@viewing_availability %>
-							<% if !schedule_entries_by_day[day].nil? %>
-								<% schedule_entries_by_day[day].sort.each do |entry| %>
-									<%= render :partial => 'schedules/schedule_entry', :locals => {:entry => entry, :day => day} %>
-								<% end %>
+						<% if !schedule_entries_by_day[day].nil? %>
+							<% schedule_entries_by_day[day].sort.each do |entry| %>
+								<%= render :partial => 'schedules/schedule_entry', :locals => {:entry => entry, :day => day} %>
 							<% end %>
 						<% end %>
-						<% if !availability_entries_by_day[day].nil? %>
-							<% availability_entries_by_day[day].sort.each do |entry| %>
-								<%= render :partial => 'schedules/availability_entry', :locals => {:entry => entry, :day => day} %>
-							<% end %>
+						<% @users.each do |user| %>
+							<%= render :partial => 'schedules/availability', :locals => {:user => user, :hours => @availabilities[day][user.id], :day => day } %>
 						<% end %>
 					</ul>
 				</td>
@@ -34,15 +29,13 @@
 	</tbody>
 	<tfoot>
 		<tr>
-			<% entries_by_day = @viewing_availability ? availability_entries_by_day : schedule_entries_by_day %>
+			<% entries_by_day = schedule_entries_by_day %>
 			<% (calendar.startdt..calendar.enddt).each do |day| %>
 				<th>
 					<% sum = entries_by_day[day].nil? ? 0 : entries_by_day[day].collect(&:hours).sum %>
 					<%= sum if sum > 0 %>
-					<% if !@viewing_availability %>
-						<% available_sum = availability_entries_by_day[day].nil? ? 0 : availability_entries_by_day[day].collect(&:hours).sum %>
-						<%= "<span class='schedule_available'>("+available_sum.to_s+" available)</em>" if available_sum > 0 %>
-					<% end %>
+					<% available_sum = @availabilities[day].nil? ? 0 : @availabilities[day].collect { |user, hours| hours }.sum %>
+					<%= "<span class='schedule_available'>("+available_sum.to_s+" available)</em>" if available_sum > 0 %>
 				</th>
 			<% end %>
 		</tr>

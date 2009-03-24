@@ -1,5 +1,6 @@
 en:
   label_schedules_my: My schedule
+  label_schedules_default: Editing default availability for {{target}}
   label_schedules_report: Schedule report
   label_schedules_details: Schedule details
   label_schedules_index: Schedule
@@ -13,6 +14,7 @@ en:
   label_user_schedule: "{{user}}'s schedule"
   label_project_schedule: Schedule
   label_schedules_available: Available
+  label_schedules_unavailable: Unavailable
   label_availability_schedule: Schedule availabilities
   label_global_schedule: All schedules
   label_schedules_estimate: Estimate
@@ -22,3 +24,5 @@ en:
   error_schedules_estimate_open_interversion_parents: Ensure all open issue relations are in the version.
   error_schedules_estimate_project_unscheduled: This project has not been scheduled.
   error_schedules_estimate_insufficient_scheduling: Not enough time scheduled for {{user}} to address {{issue}}
+  button_schedules_edit: Edit schedule
+  button_schedules_default_edit: Edit my default availability

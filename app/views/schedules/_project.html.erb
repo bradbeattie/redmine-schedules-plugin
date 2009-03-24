@@ -1,5 +1,5 @@
 <%
-	user_entries = @schedule_entries.group_by {|entry| entry.user_id}
+	user_entries = @entries.group_by {|entry| entry.user_id}
 %>
 <table class="cal schedule_entry_grid">
 	<thead>
@@ -39,7 +39,7 @@
 			<th><%= l(:label_total) %></th>
 				<% (calendar.startdt..calendar.enddt).each do |day| %>
 				<th class="even<%= ' today' if Date.today == day %>">
-					<% sum = @schedule_entries.collect {|e| e.hours if e.date == day }.compact.sum %>
+					<% sum = @entries.collect {|e| e.hours if e.date == day }.compact.sum %>
 					<%= sum if sum > 0 %>
 				</th>
 			<% end %>

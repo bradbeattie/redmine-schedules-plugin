@@ -1,14 +1,14 @@
 <div class="contextual">
-	<%= link_to(l(:button_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project %>
-	<%= link_to(l(:button_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => @user}, :class => 'icon icon-edit') if @user %>
-	<%= link_to(l(:button_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => User.current.id}, :class => 'icon icon-edit') unless @project || @user %>
+	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project %>
+	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => @user}, :class => 'icon icon-edit') if @user %>
+	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => User.current.id}, :class => 'icon icon-edit') unless @project || @user %>
+	<%= link_to(l(:button_schedules_default_edit), {:controller => 'schedules', :action => 'default'}, :class => 'icon icon-edit') if @user == User.current %>
 </div>
 
 <h2>
 	<%= l(:label_user_schedule, :user => link_to_user(@user)) unless @user.nil? %>
 	<%= l(:label_project_schedule) unless @project.nil? %>
-	<%= l(:label_availability_schedule) if @viewing_availability %>
-	<%= l(:label_global_schedule) if @user.nil? && @project.nil? && !@viewing_availability %>
+	<%= l(:label_global_schedule) if @user.nil? && @project.nil? %>
 </h2>
 
 <p class="subtitle"><%= "#{l(:label_date_from)} #{format_date(@calendar.startdt)} #{l(:label_date_to).downcase} #{format_date(@calendar.enddt)}" %></p>

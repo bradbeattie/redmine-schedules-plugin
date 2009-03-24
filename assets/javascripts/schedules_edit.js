@@ -21,24 +21,9 @@ jQuery(".schedule_entry_grid tbody td input:first-child").blur(function () {
 	});
 	
 	// Update the total text
-	jQuery.each(grid.find("tfoot tr th:nth-child("+index+")"), function() {
+	jQuery.each(grid.find("tfoot tr:last-child th:nth-child("+index+")"), function() {
 		jQuery(this).text(positive_or_blank(sum));
 	});
-
-	// Update the user's availability (if it exists)
-	jQuery.each(grid.find("tfoot tr td:nth-child("+index+")"), function() {
-		var available = jQuery(this).find("input:first-child");
-		var hidden = jQuery(this).find("input:last-child");
-		var available_value = assure_non_negative(available.val()) - delta;
-		var hidden_value = assure_non_negative(hidden.val());
-		if (available_value > hidden_value - sum) available_value = hidden_value - sum;
-		if (available_value < 0) available_value = 0;
-		available.val(positive_or_blank(available_value));
-	});
-});
-
-jQuery(".schedule_entry_grid tfoot td input:first-child").blur(function () {
-	jQuery(this).parent().find("input:last-child").val(assure_non_negative(jQuery(this).val()));
 });
 
 function positive_or_blank(value) {
