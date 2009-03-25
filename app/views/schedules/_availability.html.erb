@@ -1,10 +1,10 @@
 <% if hours > 0 && day %>
 	<% entry = ScheduleEntry.new # TODO: Refactor method style method so this model faking isn't necessary %>
 	<li class="availability_entry" style="min-height: <%= 2.7*hours %>em">
-		<div title="<%= l(:label_f_hour, :value => hours) %>" style="opacity: 0.5; min-height: <%= 2.7*hours - 1.7 %>em; <%= entry.style(user_id, @project.nil?) %>">
+		<div title="<%= l(:label_f_hour, :value => hours) %>" style="opacity: 0.5; min-height: <%= 2.7*hours - 1.7 %>em; <%= entry.style(user.id, @project.nil?) %>">
 			<% if @project.nil? %><em><%= l(:label_schedules_available) %></em><% end %>
 			<%= "<br/>" if @project.nil? && @user.nil? %>
-			<%= link_to user, :controller => 'schedules', :action => 'index', :date => day, :user_id => user_id if @user.nil? %>
+			<%= link_to user, :controller => 'schedules', :action => 'index', :date => day, :user_id => user.id if @user.nil? %>
 		</div>
 	</li>
 <% end %>
