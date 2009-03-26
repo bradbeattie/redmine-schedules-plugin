@@ -1,5 +1,5 @@
 en:
-  label_schedules_my: My schedule
+  label_schedules_my_index: My schedule
   label_schedules_default: Editing default availability for {{target}}
   label_schedules_report: Schedule report
   label_schedules_details: Schedule details

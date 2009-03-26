@@ -12,6 +12,6 @@ Redmine::Plugin.register :redmine_schedules do
 		permission :edit_all_schedules, {}, :require => :member
 	end
 	
-	menu :top_menu, :schedules, { :controller => 'schedules', :action => 'my', :project_id => nil, :user_id => nil }, :after => :my_page, :caption => :label_schedules_my, :if => Proc.new { SchedulesController.visible_projects.size > 0 }
+	menu :top_menu, :schedules, { :controller => 'schedules', :action => 'my_index', :project_id => nil, :user_id => nil }, :after => :my_page, :caption => :label_schedules_my_index, :if => Proc.new { SchedulesController.visible_projects.size > 0 }
 	menu :project_menu, :schedules, { :controller => 'schedules', :action => 'index' }, :caption => :label_schedules_index, :after => :activity, :param => :project_id
 end

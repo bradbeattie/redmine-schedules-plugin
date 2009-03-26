@@ -4,5 +4,5 @@ map.connect 'projects/:project_id/schedules/report', :controller => 'schedules',
 map.connect 'projects/:project_id/schedules/details', :controller => 'schedules', :action => 'details' 
 map.connect 'account/schedule/:user_id', :controller => 'schedules', :action => 'index'
 map.connect 'account/schedule/:user_id/edit', :controller => 'schedules', :action => 'edit'
-map.connect 'my/schedule', :controller => 'schedules', :action => 'my'
-map.connect 'my/schedule/default', :controller => 'schedules', :action => 'default_availability'
+map.connect 'my/schedule', :controller => 'schedules', :action => 'my_index'
+map.connect 'my/schedule/default', :controller => 'schedules', :action => 'default'
