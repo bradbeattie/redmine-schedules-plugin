@@ -37,7 +37,7 @@
 		<tr>
 			<th><em><%= l(:label_schedules_unavailable) %></em></th>
 			<% (calendar.startdt..calendar.enddt).each do |day| %>
-				<td>
+				<td class="odd">
 					<%
 						if closed_entries[day.ajd].nil?
 							entry = ScheduleClosedEntry.new

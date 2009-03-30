@@ -3,17 +3,11 @@ class ScheduleEntry < ActiveRecord::Base
 	belongs_to :project
 	belongs_to :user
 	
-	def style(color_id, grey = false)
+	def style(color_id)
 	
-		if grey
-			red = 192
-			green = 192
-			blue = 192
-		else
-			red   = ((Math.sin(color_id*2.6+Math::PI*0/3)+5)*32).to_i + 56
-			green = ((Math.sin(color_id*2.6+Math::PI*2/3)+5)*32).to_i + 56
-			blue  = ((Math.sin(color_id*2.6+Math::PI*4/3)+5)*32).to_i + 56
-		end
+		red   = ((Math.sin(color_id*2.6+Math::PI*0/3)+5)*32).to_i + 56
+		green = ((Math.sin(color_id*2.6+Math::PI*2/3)+5)*32).to_i + 56
+		blue  = ((Math.sin(color_id*2.6+Math::PI*4/3)+5)*32).to_i + 56
 
 		result = "background: rgb(#{red.to_s},#{green.to_s},#{blue.to_s}); "
 		result << "border: 1px solid rgb(#{(red/2).to_s},#{(green/2).to_s},#{(blue/2).to_s}); "

@@ -9,9 +9,9 @@ class SchedulesController < ApplicationController
 	# Filters
 	before_filter :require_login
 	before_filter :find_users_and_projects, :only => [:index, :edit]
-	before_filter :save_entries, :only => [:edit]
 	before_filter :find_optional_project, :only => [:report, :details]
 	before_filter :find_project, :only => [:estimate]
+	before_filter :save_entries, :only => [:edit]
 	before_filter :save_default, :only => [:default]
 	
 	# Included helpers
@@ -169,11 +169,9 @@ class SchedulesController < ApplicationController
 		end
 
 		# Schedule remaining floating issues by priority
-		floating_issues.sort { |a,b| b.priority <=> a.priority }.each do |floating_issue|
-			schedule_issue(floating_issue)
-		end
+		floating_issues.sort { |a,b| b.priority <=> a.priority }.each { |floating_issue| schedule_issue(floating_issue) }
 		
-		# That's your milestone due date
+		# Version effective date is the latest due date of all open issues
 		@version.effective_date = @open_issues.collect { |issue_id, issue| issue }.max { |a,b| a.due_date <=> b.due_date }.due_date
 		
 		# Save the issues and milestone date if requested.
