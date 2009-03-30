@@ -491,7 +491,7 @@ class SchedulesController < ApplicationController
 			while !@entries[issue.assigned_to.id].nil? && @entries[issue.assigned_to.id][considered_date].nil? && !@entries[issue.assigned_to.id].empty? && (considered_date < Date.today + 365) 
 				considered_date += 1
 			end
-			raise l(:error_schedules_estimate_insufficient_scheduling, :user => issue.assigned_to, :issue => issue) if @entries[issue.assigned_to.id][considered_date].nil?
+			raise l(:error_schedules_estimate_insufficient_scheduling, :user => issue.assigned_to, :issue => issue) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
 			if hours_remaining > @entries[issue.assigned_to.id][considered_date].hours
 				hours_remaining -= @entries[issue.assigned_to.id][considered_date].hours
 				@entries[issue.assigned_to.id][considered_date].hours = 0
