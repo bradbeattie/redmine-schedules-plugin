@@ -194,6 +194,65 @@ class SchedulesController < ApplicationController
 		timelog_report
 	end
 	
+	
+	# This method is based off of Redmine's timelog. It has been modified
+	# to accommodate the needs of the Schedules plugin. In the event that
+	# changes are made to the original, this method will need to be updated
+	# accordingly. As such, efforts should be made to modify this method as
+	# little as possible as it's effectively a branch that we want to keep
+	# in sync. 
+	def details
+	   sort_init 'date', 'desc'
+	    sort_update 'date' => 'date',
+	                'user' => 'user_id',
+	                'project' => "#{Project.table_name}.name",
+	                'hours' => 'hours'
+	    
+	    cond = ARCondition.new
+	    if @project.nil?
+	      cond << Project.allowed_to_condition(User.current, :view_schedules)
+	    end
+	    
+	    retrieve_date_range
+	    cond << ['date BETWEEN ? AND ?', @from, @to]
+	
+	    ScheduleEntry.visible_by(User.current) do
+	      respond_to do |format|
+	        format.html {
+	          # Paginate results
+	          @entry_count = ScheduleEntry.count(:include => :project, :conditions => cond.conditions)
+	          @entry_pages = Paginator.new self, @entry_count, per_page_option, params['page']
+	          @entries = ScheduleEntry.find(:all, 
+	                                    :include => [:project, :user],
+	                                    :conditions => cond.conditions,
+	                                    :order => sort_clause,
+	                                    :limit  =>  @entry_pages.items_per_page,
+	                                    :offset =>  @entry_pages.current.offset)
+	          @total_hours = ScheduleEntry.sum(:hours, :include => :project, :conditions => cond.conditions).to_f
+	
+	          render :layout => !request.xhr?
+	        }
+	        format.atom {
+	          entries = ScheduleEntry.find(:all,
+	                                   :include => [:project, :user],
+	                                   :conditions => cond.conditions,
+	                                   :order => "#{ScheduleEntry.table_name}.created_on DESC",
+	                                   :limit => Setting.feeds_limit.to_i)
+	          render_feed(entries, :title => l(:label_spent_time))
+	        }
+	        format.csv {
+	          # Export all entries
+	          @entries = ScheduleEntry.find(:all, 
+	                                    :include => [:project, :user],
+	                                    :conditions => cond.conditions,
+	                                    :order => sort_clause)
+	          send_data(entries_to_csv(@entries).read, :type => 'text/csv; header=present', :filename => 'timelog.csv')
+	        }
+	      end
+	    end
+	end
+	
+	
 	############################################################################
 	# Private methods
 	############################################################################
