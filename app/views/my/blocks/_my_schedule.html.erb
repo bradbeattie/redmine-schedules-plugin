@@ -1,7 +1,7 @@
 <h3><%= l(:label_schedules_my_index) %></h3>
 
 <%
-	@date = Date.civil(Date.today.year, Date.today.month, Date.today.day - Date.today.wday)
+	@date = Date.civil(Date.today.year, Date.today.month, Date.today.day)
 	@calendar = Redmine::Helpers::Calendar.new(@date, current_language, :week)
 	@projects = Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_schedules))
 	
