@@ -1,6 +1,6 @@
 <h3><%= l(:label_schedules_index) %></h3>
 <%= link_to l(:label_report), :controller => 'schedules', :action => 'report' %><br/>
-<%= link_to l(:label_global_schedule), :controller => 'schedules', :action => 'index' %><br/>
+<%= link_to l(:label_global_schedule), :controller => 'schedules', :action => 'index', :project_id => nil, :user_id => nil %><br/>
 
 <% if !@projects.nil? && @project.nil? %>
 	<h3><%= l(:label_schedules_projects) %></h3>
