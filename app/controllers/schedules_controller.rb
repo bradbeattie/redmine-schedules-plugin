@@ -473,7 +473,7 @@ class SchedulesController < ApplicationController
     #
     def find_user
         params[:user_id] = User.current.id if params[:user_id].nil?
-        deny_access unless User.current.id == params[:user_id] || User.current.admin?
+        deny_access unless User.current.id == params[:user_id].to_i || User.current.admin?
         @user = User.find(params[:user_id])
     rescue ActiveRecord::RecordNotFound
         render_404
