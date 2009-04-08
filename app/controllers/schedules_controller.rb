@@ -321,7 +321,7 @@ class SchedulesController < ApplicationController
                                  available_hours -= new_entry.hours
                             
                                 restrictions = "date = '#{date}' AND user_id = #{user.id}"
-                                available_hours -= ScheduleEntry.sum(:hours, :conditions => restrictions + " AND id <> #{old_entry.id}") if available_hours >= 0
+                                available_hours -= ScheduleEntry.sum(:hours, :conditions => old_entry.nil? ? restrictions : restrictions + " AND id <> #{old_entry.id}") if available_hours >= 0
                                 
                                 closed_entry = ScheduleClosedEntry.find(:first, :conditions => restrictions) if available_hours >= 0
                                 closed_hours = closed_entry.nil? ? 0 : closed_entry.hours 
