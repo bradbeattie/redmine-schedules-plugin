@@ -398,7 +398,7 @@ class SchedulesController < ApplicationController
             
             # Inform the user that the update was successful 
             flash[:notice] = l(:notice_successful_update)
-            redirect_to({:action => 'my_index'})
+            redirect_to({:action => 'index', :user_id => @user.id})
         end
     end
     
