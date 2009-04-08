@@ -2,7 +2,7 @@
 	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project %>
 	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => @user}, :class => 'icon icon-edit') if @user %>
 	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => User.current.id}, :class => 'icon icon-edit') unless @project || @user %>
-	<%= link_to(l(:button_schedules_default_edit), {:controller => 'schedules', :action => 'default', :user_id => @user}, :class => 'icon icon-edit') if @user == User.current || User.current.admin? %>
+	<%= link_to(l(:button_schedules_default_edit), {:controller => 'schedules', :action => 'default', :user_id => @user}, :class => 'icon icon-edit') if @user && (@user == User.current || User.current.admin?) %>
 </div>
 
 <h2>
