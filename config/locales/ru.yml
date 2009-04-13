@@ -27,3 +27,7 @@ ru:
   error_schedules_insufficient_availability: Изменения в расписании некоторых пользователей не были сохранены из за недостатка доступного времени.
   button_schedules_edit: Изменить расписание
   button_schedules_default_edit: Изменить мое обычное расписание
+  project_module_schedule_module: Расписания
+  permission_view_schedules: Просмотр расписаний
+  permission_edit_own_schedules: Изменение собственного расписания
+  permission_edit_all_schedules: Изменение всех расписаний
