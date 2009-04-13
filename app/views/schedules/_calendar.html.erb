@@ -36,7 +36,7 @@
 					<% sum = entries_by_day[day].nil? ? 0 : entries_by_day[day].collect(&:hours).sum %>
 					<%= sum if sum > 0 %>
 					<% available_sum = @availabilities[day].nil? ? 0 : @availabilities[day].collect { |user, hours| hours }.sum %>
-					<%= "<span class='schedule_available'>("+available_sum.to_s+" available)</em>" if available_sum > 0 %>
+					<%= "<span class='schedule_available'>(#{available_sum.to_s} #{l(:label_schedules_available).downcase})</em>" if available_sum > 0 %>
 				</th>
 			<% end %>
 		</tr>

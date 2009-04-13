@@ -120,7 +120,7 @@ class SchedulesController < ApplicationController
         # Build issue precedence hierarchy
         floating_issues = Set.new    # Issues with no children or parents
         surfaced_issues = Set.new    # Issues with children, but no parents 
-        buried_issues = Set.new        # Issues with parents
+        buried_issues = Set.new      # Issues with parents
         @open_issues.each do |issue_id, issue|
             issue.start_date = nil
             issue.due_date = nil
