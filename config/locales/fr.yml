@@ -1,0 +1,29 @@
+fr:
+  label_schedules_my_index: Mon planning
+  label_schedules_default: Editer la disponibilité par défaut pour {{target}}
+  label_schedules_report: Rapport du planning
+  label_schedules_details: Details du planning
+  label_schedules_index: Planning
+  label_schedules_projects: Planning des projets
+  label_schedules_users: Planning utilisateur
+  label_schedules_send_update: Envoyer les mises à jour de planning aux utilisateurs concernés
+  label_schedules_updated: Planning mis à jour.
+  label_schedule_edit: Edition du plannning pour {{target}}
+  label_f_short_hour: %.0f heure
+  label_f_short_hour_plural: %.0f heures
+  label_user_schedule: "Planning de {{user}}"
+  label_project_schedule: Planning
+  label_schedules_available: Disponible
+  label_schedules_unavailable: Non disponible
+  label_availability_schedule: Disponibilités du planning
+  label_global_schedule: Tous les planning
+  label_schedules_estimate: Estimation
+  label_schedules_estimate_updated: Dates des demandes et de version mises à jour.
+  error_schedules_estimate_unestimated_issues: Assurez vous que chaque demande pour cette version ont des durée estimée.
+  error_schedules_estimate_unassigned_issues: Assurez vous que toutes les demandes pour cette version sont assignées.
+  error_schedules_estimate_open_interversion_parents: Assurez vous que toutes les relations de demandes ouvertes qont dans la version.
+  error_schedules_estimate_project_unscheduled: La plannification n'a pas été faite pour ce projet.
+  error_schedules_estimate_insufficient_scheduling: Pas assez de temps plannifié pour {{user}} afin de réaliser {{issue}}
+  error_schedules_insufficient_availability: Les entrées de certains utilisateurs n'ont pas pu être sauvées car il n'y a pas assez de place dans leur planning.
+  button_schedules_edit: Editer le planning
+  button_schedules_default_edit: Editer ma disponibilité par défaut
