@@ -1,17 +1,29 @@
 de:
-  label_schedules_my_index: Mein Kalender
-  label_schedules_report: Kalender Report
-  label_schedules_details: Kalender Details
-  label_schedules_index: Kalender
-  label_schedules_projects: Projekt Kalender
-  label_schedules_users: Nutzer Kalender
-  label_schedules_send_update: Benachrichtige Nutzer über updates in ihren Kalendern 
-  label_schedules_updated: Kalender upgedated.
-  label_schedule_edit: Bearbeite Kalender für {{target}}
+  label_schedules_my_index: Mein Zeitplan
+  label_schedules_default: Bearbeite Standardverfügbarkeit für {{target}}
+  label_schedules_report: Zeitplan Report
+  label_schedules_details: Zeitplan Details
+  label_schedules_index: Zeitplan
+  label_schedules_projects: Projekt Zeitpläne
+  label_schedules_users: Nutzer Zeitpläne
+  label_schedules_send_update: Benachrichtige Nutzer über Änderungen in ihrem Zeitplan
+  label_schedules_updated: Zeitplan aktualisiert.
+  label_schedule_edit: Bearbeite Zeitplan für {{target}}
   label_f_short_hour: %.0f Stunde
   label_f_short_hour_plural: %.0f Stunden
-  label_user_schedule: "{{user}}'s Kalender"
-  label_project_schedule: Kalender
-  label_availability_schedule: Kalender Verfügbarkeit
-  label_global_schedule: Alle Kalender
+  label_user_schedule: "{{user}}'s Zeitplan"
+  label_project_schedule: Zeitplan
   label_schedules_available: Verfügbar
+  label_schedules_unavailable: Nicht verfügbar
+  label_availability_schedule: Zeitplan Verfügbarkeit
+  label_global_schedule: Alle Zeitpläne
+  label_schedules_estimate: Schätzung
+  label_schedules_estimate_updated: Daten der Tickets und Version aktualisiert.
+  error_schedules_estimate_unestimated_issues: Der Aufwand aller Tickets in dieser Version muss geschätzt sein.
+  error_schedules_estimate_unassigned_issues: Alle Tickets dieser Version müssen zugewiesen sein.
+  error_schedules_estimate_open_interversion_parents: Alle offenen Ticket-Beziehungen müssen in dieser Version sein.
+  error_schedules_estimate_project_unscheduled: Dieses Projekt wurde nicht geplant.
+  error_schedules_estimate_insufficient_scheduling: "{{user}} ist nicht genügend Zeit geplant für {{issue}}"
+  error_schedules_insufficient_availability: Die Einträge einiger Benutzer konnten augrund mangelnder Verfügbarkeit im ihrem Zeitplan nicht gespeichert werden.
+  button_schedules_edit: Zeitplan bearbeiten
+  button_schedules_default_edit: Standardverfügbarkeit bearbeiten
