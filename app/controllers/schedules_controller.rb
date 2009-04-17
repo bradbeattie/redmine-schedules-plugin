@@ -283,24 +283,32 @@ class SchedulesController < ApplicationController
     def save_scheduled_entries
     
         # Get the users and projects involved in this save 
-        user_ids = params[:schedule_entry].collect { |user_id, projects_dates| user_id }
+        user_ids = params[:schedule_entry].collect { |user_id, dates_projects_hours| user_id }
         users = User.find(:all, :conditions => "id IN ("+user_ids.join(',')+")").index_by { |user| user.id }
-        project_ids = params[:schedule_entry].collect { |user_id, projects_dates| projects_dates.keys }.flatten
+        project_ids = params[:schedule_entry].values.first.values.first.keys
         projects = Project.find(:all, :conditions => "id IN ("+project_ids.join(',')+")").index_by { |project| project.id }
         defaults = get_defaults(user_ids).index_by { |default| default.user_id }
         
-        # Save the user/project/day/hours quadrupelt assuming sufficient access
-        params[:schedule_entry].each do |user_id, project_ids|
+        # Take a look at a user and their default schedule
+        params[:schedule_entry].each do |user_id, dates_projects_hours|
             user = users[user_id.to_i]
             default = defaults[user.id]
-            project_ids.each do |project_id, dates|
-                project = projects[project_id.to_i]
-                if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin?
-                    dates.each do |date, hours|
-                    
-                        # Parse the given parameters
-                        date = Date.parse(date)
-                        hours = hours.to_f
+            default ||= ScheduleDefault.new
+            
+            # Focus down on a specific day, determining the range we can work in
+            dates_projects_hours.each do |date, projects_hours|
+                date = Date.parse(date)
+                restrictions = "date = '#{date}' AND user_id = #{user.id}"
+                other_projects = " AND project_id NOT IN (#{projects_hours.collect {|ph| ph[0] }.join(',')})"
+                available_hours = default.weekday_hours[date.wday]
+                available_hours -= ScheduleEntry.sum(:hours, :conditions => restrictions + other_projects) if available_hours > 0
+                available_hours -= ScheduleClosedEntry.find(:first, :conditions => restrictions).to_f if available_hours > 0
+            
+                # Look through the entries for each project, assuming access 
+                entries = Array.new
+                projects_hours.each do |project_id, hours|
+                    project = projects[project_id.to_i]
+                    if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin?
 
                         # Find the old schedule entry and create a new one
                         old_entry = ScheduleEntry.find(:first, :conditions => {:project_id => project_id, :user_id => user_id, :date => date})
@@ -308,32 +316,17 @@ class SchedulesController < ApplicationController
                         new_entry.project_id = project.id
                         new_entry.user_id = user.id
                         new_entry.date = date
-                        new_entry.hours = hours
-                        
-                        # Only bother if the number of hours changes
-                        if (old_entry.nil? || new_entry.hours != old_entry.hours)
-                            
-                            # If we're increasing the scheduled hours, confirm there's room
-                            defaults[user.id] = ScheduleDefault.new if defaults[user.id].nil?
-                            available_hours = defaults[user.id].weekday_hours[date.wday]
-                            
-                            if (new_entry.hours > 0) && (old_entry.nil? || old_entry.hours < hours) && (user != User.current) # && (!User.current.admin)
-                                 available_hours -= new_entry.hours
-                            
-                                restrictions = "date = '#{date}' AND user_id = #{user.id}"
-                                available_hours -= ScheduleEntry.sum(:hours, :conditions => old_entry.nil? ? restrictions : restrictions + " AND id <> #{old_entry.id}") if available_hours >= 0
-                                
-                                closed_entry = ScheduleClosedEntry.find(:first, :conditions => restrictions) if available_hours >= 0
-                                closed_hours = closed_entry.nil? ? 0 : closed_entry.hours 
-                                available_hours -= closed_hours
-                            end
-                            if available_hours >= 0
-                                save_entry(new_entry, old_entry)
-                            else
-                                flash[:warning] = l(:error_schedules_insufficient_availability)
-                            end
-                        end 
+                        new_entry.hours = [hours.to_f, 0].max
+                        entries << { :new => new_entry, :old => old_entry }
+                        available_hours -= new_entry.hours
                     end
+                end
+
+                # Save the day's entries given enough time or access                
+                if available_hours >= 0 || User.current == user || User.current.admin?
+                    entries.each { |entry| save_entry(entry[:new], entry[:old]) }
+                else  
+                    flash[:warning] = l(:error_schedules_insufficient_availability)
                 end
             end
         end
