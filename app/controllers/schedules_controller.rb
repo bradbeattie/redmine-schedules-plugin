@@ -336,15 +336,17 @@ class SchedulesController < ApplicationController
     # Given a new schedule entry and the entry that it replaces, save the first
     # and delete the second. Send out a notification if necessary.  
     def save_entry(new_entry, old_entry)
-    
-        # Send mail if editing another user
-        if (User.current != new_entry.user) && (params[:notify]) && (old_entry.nil? || new_entry.hours != old_entry.hours) && (new_entry.user.allowed_to?(:view_schedules, project))
-            ScheduleMailer.deliver_future_changed(User.current, new_entry.user, new_entry.project, new_entry.date, new_entry.hours) 
-        end
+        if old_entry.nil? || new_entry.hours != old_entry.hours
         
-        # Save the changes
-        new_entry.save if new_entry.hours > 0
-        old_entry.destroy unless old_entry.nil?
+            # Send mail if editing another user
+            if (User.current != new_entry.user) && (params[:notify]) && (new_entry.user.allowed_to?(:view_schedules, project))
+                ScheduleMailer.deliver_future_changed(User.current, new_entry.user, new_entry.project, new_entry.date, new_entry.hours) 
+            end
+            
+            # Save the changes
+            new_entry.save if new_entry.hours > 0
+            old_entry.destroy unless old_entry.nil?
+        end
     end
     
     
