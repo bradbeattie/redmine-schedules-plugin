@@ -533,8 +533,10 @@ class SchedulesController < ApplicationController
         possible_start = possible_start.compact.max
         if issue.done_ratio == 100 || @entries[issue.assigned_to.id].nil?
             considered_date = possible_start + 1
-        else 
-            considered_date = @entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact.min { |a,b| a.date <=> b.date }.date
+        else
+            considered_date = @entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact
+            raise raise l(:error_schedules_estimate_insufficient_scheduling_future, :user => issue.assigned_to, :issue => issue, :date => possible_start) if considered_date.empty?
+            considered_date = considered_date.min { |a,b| a.date <=> b.date }.date
         end
         hours_remaining = issue.estimated_hours * ((100-issue.done_ratio)*0.01) unless issue.estimated_hours.nil?
         hours_remaining ||= 0
