@@ -9,7 +9,7 @@ class SchedulesController < ApplicationController
 
     # Filters
     before_filter :require_login
-    before_filter :find_users_and_projects, :only => [:index, :edit]
+    before_filter :find_users_and_projects, :only => [:index, :edit, :users, :projects]
     before_filter :find_optional_project, :only => [:report, :details]
     before_filter :find_project, :only => [:estimate]
     before_filter :save_entries, :only => [:edit]
@@ -48,6 +48,18 @@ class SchedulesController < ApplicationController
         @entries = get_entries
         @availabilities = get_availabilities
         render :action => 'index', :layout => !request.xhr?
+    end
+    
+    #
+    def projects
+        @focus = "projects"
+        index
+    end
+
+    #
+    def users
+        @focus = "users"
+        index
     end
     
     
@@ -479,7 +491,8 @@ class SchedulesController < ApplicationController
     
         # Parse the focused user and/or project 
         @project = Project.find(params[:project_id]) if params[:project_id]
-        @user = User.find(params[:user_id]) if params[:user_id] 
+        @user = User.find(params[:user_id]) if params[:user_id]
+        @focus = "users" if @project.nil? && @user.nil?
         @projects = visible_projects.sort
         @projects = @projects & @user.projects unless @user.nil?
         @projects = @projects & [@project] unless @project.nil?

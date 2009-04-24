@@ -3,7 +3,8 @@ table.schedule_entry_grid tbody tr { height: auto; }
 table.schedule_entry_grid th { padding: 0.4em 0.8em; white-space: nowrap; }
 table.schedule_entry_grid td { text-align: center; vertical-align: middle; }
 table.schedule_entry_grid input { text-align: center; }
-table.schedule_entry_cal td { padding: 0; }
+table.schedule_entry_cal tbody tr { height: inherit; }
+table.schedule_entry_cal tbody th { padding: 2px; border: 1px solid #D7D7D7; }
 table.schedule_entry_cal ul { list-style-type: none; padding: 0; margin: 0.5em 0.5em 0; }
 table.schedule_entry_cal li div { padding: 0.5em; margin-bottom: 0.5em; line-height: 1em; border: 1px solid #CCC; background: #EEE; }
 table.schedule_entry_cal li.availability_entry div { opacity: 0.6; }
