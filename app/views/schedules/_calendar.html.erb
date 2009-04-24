@@ -33,34 +33,31 @@
             end
             
             focus_objects.each do |focus_object|
-                if !schedule_entries_by_focus[focus_object.id].nil? 
-                    entries = schedule_entries_by_focus[focus_object.id]
-                    @user = focus_object if @focus == "users"
-                    @project = focus_object if @focus == "projects"
-                    schedule_entries_by_day = entries.group_by {|entry| entry.date}
-        %>
-                    <tr>
-                        <th>
-                            <%= link_to @project, :controller => 'schedules', :action => 'index', :date => @date, :project_id => @project unless @project.nil? %>
-                            <%= link_to @user, :controller => 'schedules', :action => 'index', :date => @date, :user_id => @user unless @user.nil? %>
-                        </th>
-                        <% (calendar.startdt..calendar.enddt).each do |day| %>
-                            <td class="even<%= ' today' if Date.today == day %>">
-                                <ul>
-                                    <% if !schedule_entries_by_day[day].nil? %>
-                                        <% schedule_entries_by_day[day].sort.each do |entry| %>
-                                            <%= render :partial => 'schedules/schedule_entry', :locals => {:entry => entry} %>
-                                        <% end %>
+                entries = schedule_entries_by_focus[focus_object.id]
+                @user = focus_object if @focus == "users"
+                @project = focus_object if @focus == "projects"
+                schedule_entries_by_day = entries.group_by {|entry| entry.date} unless entries.nil? %>
+                <tr>
+                    <th>
+                        <%= link_to @project, :controller => 'schedules', :action => 'index', :date => @date, :project_id => @project unless @project.nil? %>
+                        <%= link_to @user, :controller => 'schedules', :action => 'index', :date => @date, :user_id => @user unless @user.nil? %>
+                    </th>
+                    <% (calendar.startdt..calendar.enddt).each do |day| %>
+                        <td class="even<%= ' today' if Date.today == day %>">
+                            <ul>
+                                <% if !schedule_entries_by_day.nil? && !schedule_entries_by_day[day].nil? %>
+                                    <% schedule_entries_by_day[day].sort.each do |entry| %>
+                                        <%= render :partial => 'schedules/schedule_entry', :locals => {:entry => entry} %>
                                     <% end %>
-                                    <% if @focus == "users" %>
-                                        <% hours = @availabilities[day][focus_object.id] %>
-                                        <%= render :partial => 'schedules/availability', :locals => {:user => @user, :hours => hours, :day => day } %>
-                                    <% end unless @availabilities.nil? || @availabilities.empty? %>
-                                </ul>
-                            </td>
-                        <% end %>
-                    </tr>
-                <% end %>
+                                <% end %>
+                                <% if @focus == "users" %>
+                                    <% hours = @availabilities[day][focus_object.id] %>
+                                    <%= render :partial => 'schedules/availability', :locals => {:user => @user, :hours => hours, :day => day } %>
+                                <% end unless @availabilities.nil? || @availabilities.empty? %>
+                            </ul>
+                        </td>
+                    <% end %>
+                </tr>
             <% end %>
             <% @project = nil %>
             <% @user = nil %>
