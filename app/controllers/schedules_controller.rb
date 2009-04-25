@@ -67,7 +67,7 @@ class SchedulesController < ApplicationController
     def my_index
         params[:user_id] = User.current.id
         find_users_and_projects
-        index
+        index unless @users.empty? || @projects.empty?
     end
     
     
@@ -425,7 +425,7 @@ class SchedulesController < ApplicationController
     # Get closed entries between two dates for the specified users
     def get_closed_entries
         restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
-        restrictions << " AND user_id IN ("+@users.collect {|user| user.id.to_s }.join(',')+")"
+        restrictions << " AND user_id IN ("+@users.collect {|user| user.id.to_s }.join(',')+")" 
         ScheduleClosedEntry.find(:all, :conditions => restrictions)
     end
     
@@ -548,7 +548,7 @@ class SchedulesController < ApplicationController
             considered_date = possible_start + 1
         else
             considered_date = @entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact
-            raise raise l(:error_schedules_estimate_insufficient_scheduling_future, :user => issue.assigned_to, :issue => issue, :date => possible_start) if considered_date.empty?
+            raise l(:error_schedules_estimate_insufficient_scheduling_future, issue.assigned_to, issue, possible_start) if considered_date.empty?
             considered_date = considered_date.min { |a,b| a.date <=> b.date }.date
         end
         hours_remaining = issue.estimated_hours * ((100-issue.done_ratio)*0.01) unless issue.estimated_hours.nil?
@@ -561,7 +561,7 @@ class SchedulesController < ApplicationController
             while !@entries[issue.assigned_to.id].nil? && @entries[issue.assigned_to.id][considered_date].nil? && !@entries[issue.assigned_to.id].empty? && (considered_date < Date.today + 365) 
                 considered_date += 1
             end
-            raise l(:error_schedules_estimate_insufficient_scheduling, :user => issue.assigned_to, :issue => issue) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
+            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to, issue) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
             if hours_remaining > @entries[issue.assigned_to.id][considered_date].hours
                 hours_remaining -= @entries[issue.assigned_to.id][considered_date].hours
                 @entries[issue.assigned_to.id][considered_date].hours = 0
