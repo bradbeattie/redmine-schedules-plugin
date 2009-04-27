@@ -1,5 +1,7 @@
 require 'redmine'
 
+require 'redmine_compatibility'
+
 Redmine::Plugin.register :redmine_schedules do
 	name 'Redmine Schedules plugin'
 	author 'Brad Beattie'
