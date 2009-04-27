@@ -6,7 +6,7 @@
   label_schedules_users: Scadenze utente
   label_schedules_send_update: Invia gli aggiornamenti delle scadenze ad i rispettivi utenti
   label_schedules_updated: Aggiornamento scadenze.
-  label_schedule_edit: Edita la scadenza per {{target}}
+  label_schedule_edit: Edita la scadenza per %s
   label_user_schedule: scadenza di %s
   label_project_schedule: Scadenze
   label_schedules_available: Disponibilita

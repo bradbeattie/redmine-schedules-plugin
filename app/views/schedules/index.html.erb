@@ -6,7 +6,7 @@
 </div>
 
 <h2>
-	<%= l(:label_user_schedule, :user => link_to_user(@user)) unless @user.nil? %>
+	<%= l(:label_user_schedule, link_to_user(@user)) unless @user.nil? %>
 	<%= l(:label_project_schedule) unless @project.nil? %>
 	<%= l(:label_global_schedule) if @user.nil? && @project.nil? %>
 </h2>

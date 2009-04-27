@@ -3,7 +3,7 @@
 <%= breadcrumb link_to(l(:label_schedules_index), {:controller => 'schedules', :action => 'index', :date => @date }) unless !@project.nil? || !@user.nil? %>
 
 <h2>
-	<%= l(:label_schedule_edit, :target => link_to_user(@user)) unless @user.nil? %>
+	<%= l(:label_schedule_edit, link_to_user(@user)) unless @user.nil? %>
 	<%= l(:label_schedule_edit, @project) unless @project.nil? %>
 	<%= l(:label_schedule_edit, "today") if @user.nil? && @project.nil? %>
 </h2>

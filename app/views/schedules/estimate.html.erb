@@ -19,11 +19,11 @@
 					<tr>
 						<td class="id"><%= link_to issue.id, :controller => 'issues', :action => 'show', :id => issue %></td>
 						<td class="tracker"><%=h issue.tracker %></td>
-						<td class="subject"><%= link_to h(truncate(issue.subject, :length => 60)), :controller => 'issues', :action => 'show', :id => issue %> (<%=h issue.status %>)</td>
+						<td class="subject"><%= link_to h(truncate(issue.subject, 60)), :controller => 'issues', :action => 'show', :id => issue %> (<%=h issue.status %>)</td>
 						<td><%= issue.assigned_to %></td>
 						<td><%= issue.start_date %></td>
 						<td><%= issue.due_date %></td>
-						<td class="estimated-hours"><%= l_hours(issue.estimated_hours) %></td>
+						<td class="estimated-hours"><%= RedmineCompatibility::I18n.l_hours(issue.estimated_hours) %></td>
 						<td class="progress"><%= progress_bar issue.done_ratio, :width => '80px' %></td>
 					</tr>
 				<% end %>

@@ -1,6 +1,6 @@
 pt-BR:
    label_schedules_my_index: Minha agenda
-   label_schedules_default: Edição padrão disponível para {{target}}
+   label_schedules_default: Edição padrão disponível para %s
    label_schedules_report: Relatorio do agendamento
    label_schedules_details: Detalhes do agendamento
    label_schedules_index: Agenda
@@ -8,8 +8,8 @@ pt-BR:
    label_schedules_users: Agendas dos usuários
    label_schedules_send_update: Enviar agenda atualizada para os respectivos usuários
    label_schedules_updated: Agenda atualizada.
-   label_schedule_edit: Editando agenda do {{target}}
-   label_user_schedule: "{{user}}'s agenda"
+   label_schedule_edit: Editando agenda do %s
+   label_user_schedule: "%s's agenda"
    label_project_schedule: Agenda
    label_schedules_available: Disponível
    label_schedules_unavailable: Indisponível
@@ -21,7 +21,7 @@ pt-BR:
    error_schedules_estimate_unassigned_issues: Assegurar que todas as tarefas nesta versão estão atribuídos.
    error_schedules_estimate_open_interversion_parents: Assegurar que todas as tarefas abertas estão relacionadas com a versão.
    error_schedules_estimate_project_unscheduled: Este projeto não foi agendado.
-   error_schedules_estimate_insufficient_scheduling: Não há tempo suficiente na agenda do {{user}} para a seguinte tarefa {{issue}}
+   error_schedules_estimate_insufficient_scheduling: Não há tempo suficiente na agenda do %s para a seguinte tarefa %s
    error_schedules_insufficient_availability: Algumas entradas do usuário não podem ser salvos como não havia espaço suficiente nos seus horários.
    button_schedules_edit: Editar agenda
    button_schedules_default_edit: Edição padrão disponível

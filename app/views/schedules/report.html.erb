@@ -40,7 +40,7 @@
 
 <% unless @criterias.empty? %>
 <div class="total-hours">
-<p><%= l(:label_total) %>: <%= html_hours(l_hours(@total_hours)) %></p>
+<p><%= l(:label_total) %>: <%= html_hours(RedmineCompatibility::I18n.l_hours(@total_hours)) %></p>
 </div>
 
 <% unless @hours.empty? %>
@@ -79,9 +79,6 @@
 </tbody>
 </table>
 
-<% other_formats_links do |f| %>
-	<%= f.link_to 'CSV', :url => params %>
-<% end %>
 <% end %>
 <% end %>
 
