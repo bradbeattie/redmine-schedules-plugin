@@ -9,8 +9,6 @@ ru:
   label_schedules_send_update: Отправить обновления расписания соответствующим пользователям
   label_schedules_updated: Расписания обновлены.
   label_schedule_edit: "Изменение расписания для {{target}}"
-  label_f_short_hour: %.0f час
-  label_f_short_hour_plural: %.0f часов
   label_user_schedule: "Расписание для {{user}}"
   label_project_schedule: Расписание
   label_schedules_available: Доступен

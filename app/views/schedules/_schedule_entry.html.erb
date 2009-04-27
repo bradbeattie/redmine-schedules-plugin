@@ -1,5 +1,5 @@
 <li class="schedule_entry" style="min-height: <%= 2.7*entry.hours %>em">
-	<div title="<%= l(:label_f_hour, entry.hours) %>" style="min-height: <%= 2.7*entry.hours - 1.7 %>em; <%= entry.style(@user.nil? ? entry.user.id : entry.project.id) %>">
+	<div title="<%= lwr(:label_f_hour, entry.hours) %>" style="min-height: <%= 2.7*entry.hours - 1.7 %>em; <%= entry.style(@user.nil? ? entry.user.id : entry.project.id) %>">
 		<%= link_to entry.project, :controller => 'schedules', :action => 'index', :date => entry.date, :project_id => entry.project if @project.nil?%>
 		<%= "<br/>" if @project.nil? && @user.nil? %>
 		<%= link_to entry.user, :controller => 'schedules', :action => 'index', :date => entry.date, :user_id => entry.user.id if @user.nil? %>

@@ -8,8 +8,6 @@
   label_schedules_send_update: Notifier les utilisateurs des changements dans leur planning
   label_schedules_updated: Plannings mis à jour.
   label_schedule_edit: Modifier planning pour {{target}}
-  label_f_short_hour: %.0f heure
-  label_f_short_hour_plural: %.0f heures
   label_user_schedule: "Planning de {{user}}"
   label_project_schedule: Planning
   label_schedules_available: Disponible

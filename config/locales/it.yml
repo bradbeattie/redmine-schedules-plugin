@@ -8,8 +8,6 @@ it:
   label_schedules_send_update: Invia gli aggiornamenti delle scadenze ad i rispettivi utenti
   label_schedules_updated: Aggiornamento scadenze.
   label_schedule_edit: Edita la scadenza per {{target}}
-  label_f_short_hour: %.0f ora
-  label_f_short_hour_plural: %.0f ore
   label_user_schedule: scadenza di %s
   label_project_schedule: Scadenze
   label_schedules_available: Disponibilita

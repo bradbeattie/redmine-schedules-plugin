@@ -7,8 +7,6 @@
   label_schedules_send_update: שלח עידכוני משימות למשתמש
   label_schedules_updated: משימות מעודכנות
   label_schedule_edit: '{{target}} עידכון משימה עבור'
-  label_f_short_hour: %.0f שעה
-  label_f_short_hour_plural: %.0f שעות
   label_user_schedule: '{{user}} משימות של '
   label_project_schedule: משימות
   label_schedules_available: פנוי

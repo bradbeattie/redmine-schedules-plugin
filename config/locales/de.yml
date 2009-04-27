@@ -9,8 +9,6 @@ de:
   label_schedules_send_update: Benachrichtige Nutzer über Änderungen in ihrem Zeitplan
   label_schedules_updated: Zeitplan aktualisiert.
   label_schedule_edit: Bearbeite Zeitplan für {{target}}
-  label_f_short_hour: %.0f Stunde
-  label_f_short_hour_plural: %.0f Stunden
   label_user_schedule: "{{user}}'s Zeitplan"
   label_project_schedule: Zeitplan
   label_schedules_available: Verfügbar

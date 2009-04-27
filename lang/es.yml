@@ -8,8 +8,6 @@
   label_schedules_send_update: Enviar actualizaciones de la agenda a los respectivos usuarios
   label_schedules_updated: Agenda Actualizada.
   label_schedule_edit: Editando Agenda de {{target}}
-  label_f_short_hour: %.0f hora
-  label_f_short_hour_plural: %.0f horas
   label_user_schedule: "Agenda de {{user}}"
   label_project_schedule: Agenda
   label_schedules_available: Disponible
