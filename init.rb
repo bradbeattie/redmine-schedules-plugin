@@ -6,7 +6,7 @@ Redmine::Plugin.register :redmine_schedules do
 	name 'Redmine Schedules plugin'
 	author 'Brad Beattie'
 	description 'This plugin provides instances of Redmine a method with which to allocate users to projects and to track this allocation over time. It does so by creating daily time estimates of hours worked per project per user.'
-	version '0.3.2'
+	version '0.4.0'
   
 	project_module :schedule_module do
 		permission :view_schedules,  {:schedules => [:index]}, :require => :member
