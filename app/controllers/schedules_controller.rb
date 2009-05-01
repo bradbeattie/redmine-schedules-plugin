@@ -314,7 +314,8 @@ class SchedulesController < ApplicationController
                 other_projects = " AND project_id NOT IN (#{projects_hours.collect {|ph| ph[0] }.join(',')})"
                 available_hours = default.weekday_hours[date.wday]
                 available_hours -= ScheduleEntry.sum(:hours, :conditions => restrictions + other_projects) if available_hours > 0
-                available_hours -= ScheduleClosedEntry.find(:first, :conditions => restrictions).to_f if available_hours > 0
+                closedEntry = ScheduleClosedEntry.find(:first, :conditions => restrictions) if available_hours > 0
+                available_hours -= closedEntry.hours unless closedEntry.nil?
             
                 # Look through the entries for each project, assuming access 
                 entries = Array.new
