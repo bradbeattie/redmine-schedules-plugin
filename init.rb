@@ -1,6 +1,6 @@
 require 'redmine'
 
-require 'redmine_compatibility'
+require_dependency 'redmine_compatibility'
 
 Redmine::Plugin.register :redmine_schedules do
 	name 'Redmine Schedules plugin'

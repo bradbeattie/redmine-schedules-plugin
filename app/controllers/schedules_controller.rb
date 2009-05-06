@@ -337,7 +337,7 @@ class SchedulesController < ApplicationController
 
                 # Save the day's entries given enough time or access                
                 if available_hours >= 0 || User.current == user || User.current.admin?
-                    entries.each { |entry| save_entry(entry[:new], entry[:old]) }
+                    entries.each { |entry| save_entry(entry[:new], entry[:old], projects[entry[:new].project.id]) }
                 else  
                     flash[:warning] = l(:error_schedules_insufficient_availability)
                 end
@@ -348,7 +348,7 @@ class SchedulesController < ApplicationController
     
     # Given a new schedule entry and the entry that it replaces, save the first
     # and delete the second. Send out a notification if necessary.  
-    def save_entry(new_entry, old_entry)
+    def save_entry(new_entry, old_entry, project)
         if old_entry.nil? || new_entry.hours != old_entry.hours
         
             # Send mail if editing another user
