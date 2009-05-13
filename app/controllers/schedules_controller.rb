@@ -33,8 +33,10 @@ class SchedulesController < ApplicationController
     
     
     # Return a list of the users in the given projects which have permission to view schedules
-    def self.visible_users(members)        
-        members.select {|m| m.role.allowed_to?(:view_schedules)}.collect {|m| m.user}.uniq.sort
+    def self.visible_users(members)
+      members.select {|m| m.roles.each {|role| role.allowed_to?(:view_schedules)}}.collect {|m| m.user}.uniq.sort
+    rescue    
+      members.select {|m| m.role.allowed_to?(:view_schedules)}.collect {|m| m.user}.uniq.sort
     end
 
 
@@ -87,6 +89,7 @@ class SchedulesController < ApplicationController
         @closed_entries = get_closed_entries
         render :layout => !request.xhr?
     end
+    
     
     # Given a version, we want to estimate when it can be completed. To generate
     # this date, we need open issues to have time estimates and for assigned
