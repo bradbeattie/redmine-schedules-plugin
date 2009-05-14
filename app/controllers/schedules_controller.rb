@@ -34,7 +34,7 @@ class SchedulesController < ApplicationController
     
     # Return a list of the users in the given projects which have permission to view schedules
     def self.visible_users(members)
-      members.select {|m| m.roles.each {|role| role.allowed_to?(:view_schedules)}}.collect {|m| m.user}.uniq.sort
+      members.select {|m| m.roles.detect {|role| role.allowed_to?(:view_schedules)}}.collect {|m| m.user}.uniq.sort
     rescue    
       members.select {|m| m.role.allowed_to?(:view_schedules)}.collect {|m| m.user}.uniq.sort
     end
