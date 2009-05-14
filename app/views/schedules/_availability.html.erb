@@ -1,6 +1,6 @@
 <% if hours > 0 %>
 	<li class="availability_entry" style="min-height: <%= 2.7*hours %>em">
-		<div title="<%= RedmineCompatibility::I18n.lwr(:label_f_hour, :value => hours) %>" style="min-height: <%= 2.7*hours - 1.7 %>em;">
+		<div title="<%= ScheduleCompatibility::I18n.lwr(:label_f_hour, :value => hours) %>" style="min-height: <%= 2.7*hours - 1.7 %>em;">
 			<% if @project.nil? %><em><%= l(:label_schedules_available) %></em><% end %>
 			<%= "<br/>" if @project.nil? && @user.nil? %>
 			<%= link_to user, :controller => 'schedules', :action => 'index', :date => day, :user_id => user.id if @user.nil? %>

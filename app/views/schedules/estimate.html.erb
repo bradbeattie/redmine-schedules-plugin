@@ -23,7 +23,7 @@
 						<td><%= issue.assigned_to %></td>
 						<td><%= issue.start_date %></td>
 						<td><%= issue.due_date %></td>
-						<td class="estimated-hours"><%= RedmineCompatibility::I18n.l_hours(issue.estimated_hours) %></td>
+						<td class="estimated-hours"><%= ScheduleCompatibility::I18n.l_hours(issue.estimated_hours) %></td>
 						<td class="progress"><%= progress_bar issue.done_ratio, :width => '80px' %></td>
 					</tr>
 				<% end %>
