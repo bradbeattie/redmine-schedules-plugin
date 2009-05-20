@@ -2,14 +2,14 @@
 <%= link_to l(:label_report), :controller => 'schedules', :action => 'report' %><br/>
 <%= link_to l(:label_global_schedule), :controller => 'schedules', :action => 'index', :project_id => nil, :user_id => nil %><br/>
 
-<% if !@projects.nil? && @project.nil? %>
+<% if !@projects.nil? && !@projects.empty? && @project.nil? %>
 	<h3><%= l(:label_schedules_projects) %></h3>
 	<% @projects.each do |project| %>
 		<%= link_to project, :controller => 'schedules', :action => 'index', :project_id => project %>
 		<br/>
 	<% end %>
 <% end %>
-<% if !@users.nil? && @user.nil? %>
+<% if !@users.nil? && !@users.empty? && @user.nil? %>
 	<h3><%= l(:label_schedules_users) %></h3>
 	<% @users.each do |user| %>
 		<%= link_to user, :controller => 'schedules', :action => 'index', :user_id => user.id %>

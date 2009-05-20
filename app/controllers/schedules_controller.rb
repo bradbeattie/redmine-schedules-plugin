@@ -47,9 +47,11 @@ class SchedulesController < ApplicationController
     
     # View the schedule for the given week/user/project
     def index
-        @entries = get_entries
-        @availabilities = get_availabilities
-        render :action => 'index', :layout => !request.xhr?
+        unless @users.empty?
+            @entries = get_entries
+            @availabilities = get_availabilities
+            render :action => 'index', :layout => !request.xhr?
+        end
     end
     
     #
@@ -69,7 +71,7 @@ class SchedulesController < ApplicationController
     def my_index
         params[:user_id] = User.current.id
         find_users_and_projects
-        index unless @users.empty? || @projects.empty?
+        index
     end
     
     
@@ -278,7 +280,7 @@ class SchedulesController < ApplicationController
     # allowed to see and provide edit access to those permission is granted to.
     def save_entries
         if request.post? && params[:commit]
-            save_scheduled_entries
+            save_scheduled_entries unless params[:schedule_entry].nil?
             save_closed_entries unless params[:schedule_closed_entry].nil?
             
             # If all entries saved without issue, view the results
@@ -419,7 +421,7 @@ class SchedulesController < ApplicationController
         restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
         restrictions << " AND user_id = " + @user.id.to_s unless @user.nil?
         if project_restriction
-            restrictions << " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")"
+            restrictions << " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")" unless @projects.empty?
             restrictions << " AND project_id = " + @project.id.to_s unless @project.nil?
         end
         ScheduleEntry.find(:all, :conditions => restrictions)
@@ -429,14 +431,14 @@ class SchedulesController < ApplicationController
     # Get closed entries between two dates for the specified users
     def get_closed_entries
         restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
-        restrictions << " AND user_id IN ("+@users.collect {|user| user.id.to_s }.join(',')+")" 
+        restrictions << " AND user_id IN ("+@users.collect {|user| user.id.to_s }.join(',')+")" unless @users.empty?
         ScheduleClosedEntry.find(:all, :conditions => restrictions)
     end
     
     
     # Get schedule defaults for the specified users
     def get_defaults(user_ids = nil)
-        restrictions = "user_id IN ("+@users.collect {|user| user.id.to_s }.join(',')+")" unless @users.nil?
+        restrictions = "user_id IN ("+@users.collect {|user| user.id.to_s }.join(',')+")" unless @users.empty?
         restrictions = "user_id IN ("+user_ids.join(',')+")" unless user_ids.nil?
         ScheduleDefault.find(:all, :conditions => restrictions)
     end
@@ -502,7 +504,8 @@ class SchedulesController < ApplicationController
         @projects = @projects & [@project] unless @project.nil?
         @users = visible_users(@projects.collect(&:members).flatten.uniq)
         @users = @users & [@user] unless @user.nil?
-        deny_access if @projects.size == 0 || @users.size == 0
+        @users = [@user] if @users.empty? && User.current.admin?
+        deny_access if (@projects.empty? || @users.empty?) && !User.current.admin?
         
         # Parse the given date or default to today
         @date = Date.parse(params[:date]) if params[:date]

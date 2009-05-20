@@ -11,6 +11,8 @@
 	<%= l(:label_global_schedule) if @user.nil? && @project.nil? %>
 </h2>
 
+<% unless @entries.nil? %>
+
 <p class="subtitle"><%= "#{l(:label_date_from)} #{format_date(@calendar.startdt)} #{l(:label_date_to).downcase} #{format_date(@calendar.enddt)}" %></p>
 
 <% form_tag({}, :id => 'date_form') do %>
@@ -40,6 +42,10 @@
 <%= error_messages_for 'query' %>
 
 <%= render :partial => 'calendar', :locals => {:calendar => @calendar} %>
+
+<% else %>
+    <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
 			
 <% html_title(l(:label_schedules_index)) -%>
 
