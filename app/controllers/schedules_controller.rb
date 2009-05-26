@@ -108,6 +108,7 @@ class SchedulesController < ApplicationController
     def estimate
         
         # Obtain all open issues for the given version
+        raise l(:error_schedules_not_enabled) if !@version.project.module_enabled?('schedule_module')
         @open_issues = @version.fixed_issues.collect { |issue| issue unless issue.closed? }.compact.index_by { |issue| issue.id }
 
         # Confirm that all issues have estimates, are assigned and only have parents in this version
@@ -125,14 +126,13 @@ class SchedulesController < ApplicationController
 
         # Obtain all assignees 
         assignees = @open_issues.collect { |issue_id, issue| issue.assigned_to }.uniq
-        raise l(:error_schedules_estimate_project_unscheduled) if assignees.empty?
         @entries = ScheduleEntry.find(
             :all,
             :conditions => sprintf("user_id IN (%s) AND date > NOW() AND project_id = %s", assignees.collect {|user| user.id }.join(','), @version.project.id),
             :order => ["date"]
         ).group_by{ |entry| entry.user_id }
+        raise l(:error_schedules_estimate_insufficient_scheduling) if @entries.empty?
         @entries.each { |user_id, user_entries| @entries[user_id] = user_entries.index_by { |entry| entry.date } }
-        raise l(:error_schedules_estimate_project_unscheduled) if @entries.empty? || !@version.project.module_enabled?('schedule_module')
         
         # Build issue precedence hierarchy
         floating_issues = Set.new    # Issues with no children or parents
@@ -555,7 +555,7 @@ class SchedulesController < ApplicationController
             considered_date = possible_start + 1
         else
             considered_date = @entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact
-            raise l(:error_schedules_estimate_insufficient_scheduling_future, issue.assigned_to, issue, possible_start) if considered_date.empty?
+            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + "// " + issue.to_s + " // ", possible_start.to_s) if considered_date.empty?
             considered_date = considered_date.min { |a,b| a.date <=> b.date }.date
         end
         hours_remaining = issue.estimated_hours * ((100-issue.done_ratio)*0.01) unless issue.estimated_hours.nil?
@@ -568,7 +568,7 @@ class SchedulesController < ApplicationController
             while !@entries[issue.assigned_to.id].nil? && @entries[issue.assigned_to.id][considered_date].nil? && !@entries[issue.assigned_to.id].empty? && (considered_date < Date.today + 365) 
                 considered_date += 1
             end
-            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to, issue) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
+            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + " // " + issue.to_s) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
             if hours_remaining > @entries[issue.assigned_to.id][considered_date].hours
                 hours_remaining -= @entries[issue.assigned_to.id][considered_date].hours
                 @entries[issue.assigned_to.id][considered_date].hours = 0

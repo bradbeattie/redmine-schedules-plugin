@@ -19,7 +19,6 @@
   error_schedules_estimate_unestimated_issues: Asegurese que todas las actividades han sido estimadas.
   error_schedules_estimate_unassigned_issues: Asegurese que todas las actividades en esta version han sido asignadas.
   error_schedules_estimate_open_interversion_parents: Ensure all open issue relations are in the version.
-  error_schedules_estimate_project_unscheduled: Este proyecto no ha sido estimado.
   error_schedules_estimate_insufficient_scheduling: No se ha agendado suficiente tiempo para %s para realizar %s
   error_schedules_insufficient_availability: Algunas de las entradas en la agenda del usuario no pudiendo guardarse por falta de disponibilidad
   button_schedules_edit: Editar Agenda

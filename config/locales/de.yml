@@ -20,7 +20,6 @@ de:
   error_schedules_estimate_unestimated_issues: Der Aufwand aller Tickets in dieser Version muss geschätzt sein.
   error_schedules_estimate_unassigned_issues: Alle Tickets dieser Version müssen zugewiesen sein.
   error_schedules_estimate_open_interversion_parents: Alle offenen Ticket-Beziehungen müssen in dieser Version sein.
-  error_schedules_estimate_project_unscheduled: Dieses Projekt wurde nicht geplant.
   error_schedules_estimate_insufficient_scheduling: %s ist nicht genügend Zeit geplant für %s
   error_schedules_insufficient_availability: Die Einträge einiger Benutzer konnten augrund mangelnder Verfügbarkeit im ihrem Zeitplan nicht gespeichert werden.
   button_schedules_edit: Zeitplan bearbeiten

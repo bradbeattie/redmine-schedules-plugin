@@ -17,12 +17,11 @@ en:
   label_global_schedule: All schedules
   label_schedules_estimate: Estimate
   label_schedules_estimate_updated: Issues and version dates updated.
+  error_schedules_not_enabled: Schedules module not enabled
   error_schedules_estimate_unestimated_issues: Ensure all issues in this version have estimated times.
   error_schedules_estimate_unassigned_issues: Ensure all issues in this version are assigned.
   error_schedules_estimate_open_interversion_parents: Ensure all open issue relations are in the version.
-  error_schedules_estimate_project_unscheduled: This project has not been scheduled.
-  error_schedules_estimate_insufficient_scheduling: Not enough time scheduled for %s to address %s
-  error_schedules_estimate_insufficient_scheduling_future: Not enough time scheduled for %s to address %s past %s
+  error_schedules_estimate_insufficient_scheduling: Users must be scheduled before estimating due dates. %s
   error_schedules_insufficient_availability: Some user's entries could not be saved as there was not enough room in their schedules.
   button_schedules_edit: Edit schedule
   button_schedules_default_edit: Edit default availability

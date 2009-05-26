@@ -19,7 +19,6 @@
   error_schedules_estimate_unestimated_issues: Let op dat alle issues in deze versie geschatte tijden moeten hebben.
   error_schedules_estimate_unassigned_issues: Let op dat alle issues in deze versie zijn toegewezen.
   error_schedules_estimate_open_interversion_parents: Let op dat alle open issue relaties in deze versie zitten.
-  error_schedules_estimate_project_unscheduled: Dit project is niet geplanned.
   error_schedules_estimate_insufficient_scheduling: Niet genoeg tijd beschikbaar voor %s om te werken aan %s
   error_schedules_estimate_insufficient_scheduling_future: Niet genoeg tijd beschikbaar voor %s om te werken aan %s na %s
   error_schedules_insufficient_availability: "Sommige gebruikers items konden niet bewaard worden, aangezien er niet genoeg tijd beschikbaar was in hun planning."

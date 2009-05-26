@@ -20,7 +20,6 @@ fr:
   error_schedules_estimate_unestimated_issues: Assurez vous que chaque demande pour cette version a une durée estimée.
   error_schedules_estimate_unassigned_issues: Assurez vous que toutes les demandes pour cette version sont assignées.
   error_schedules_estimate_open_interversion_parents: Assurez vous que toutes les relations de demandes ouvertes sont dans la version.
-  error_schedules_estimate_project_unscheduled: Ce projet n'a pas été planifié.
   error_schedules_estimate_insufficient_scheduling: Temps planifié de %s insuffisant pour %s
   error_schedules_insufficient_availability: Les entrées pour quelques utilisateurs n'ont pas pu être sauvegardées car il n'y a pas assez de temps libre dans leur planning.
   button_schedules_edit: Modifier planning

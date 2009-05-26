@@ -20,7 +20,6 @@ ru:
   error_schedules_estimate_unestimated_issues: Все задачи этой версии должны иметь оценки времени выполнения.
   error_schedules_estimate_unassigned_issues: Все задачи этой версии должны быть назначены.
   error_schedules_estimate_open_interversion_parents: Все открытые задачи должны быть связаны с соответствующей версией.
-  error_schedules_estimate_project_unscheduled: Этот проект не был запланирован.
   error_schedules_estimate_insufficient_scheduling: "%s не хватает времени для выполнения %s"
   error_schedules_insufficient_availability: Изменения в расписании некоторых пользователей не были сохранены из за недостатка доступного времени.
   button_schedules_edit: Изменить расписание
