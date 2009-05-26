@@ -555,7 +555,7 @@ class SchedulesController < ApplicationController
             considered_date = possible_start + 1
         else
             considered_date = @entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact
-            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + "// " + issue.to_s + " // ", possible_start.to_s) if considered_date.empty?
+            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + "// " + issue.to_s + " // " + possible_start.to_s) if considered_date.empty?
             considered_date = considered_date.min { |a,b| a.date <=> b.date }.date
         end
         hours_remaining = issue.estimated_hours * ((100-issue.done_ratio)*0.01) unless issue.estimated_hours.nil?
@@ -568,7 +568,7 @@ class SchedulesController < ApplicationController
             while !@entries[issue.assigned_to.id].nil? && @entries[issue.assigned_to.id][considered_date].nil? && !@entries[issue.assigned_to.id].empty? && (considered_date < Date.today + 365) 
                 considered_date += 1
             end
-            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + " // " + issue.to_s) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
+            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + " // " + issue.to_s + " // " + considered_date.to_s) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
             if hours_remaining > @entries[issue.assigned_to.id][considered_date].hours
                 hours_remaining -= @entries[issue.assigned_to.id][considered_date].hours
                 @entries[issue.assigned_to.id][considered_date].hours = 0
