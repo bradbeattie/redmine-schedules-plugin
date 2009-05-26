@@ -565,10 +565,11 @@ class SchedulesController < ApplicationController
         # after the possible start dates.
         issue.start_date = considered_date
         while hours_remaining > 0
+            considered_date_round = considered_date
             while !@entries[issue.assigned_to.id].nil? && @entries[issue.assigned_to.id][considered_date].nil? && !@entries[issue.assigned_to.id].empty? && (considered_date < Date.today + 365) 
                 considered_date += 1
             end
-            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + " // " + issue.to_s + " // " + considered_date.to_s) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
+            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + " // " + issue.to_s + " // " + considered_date_round.to_s) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
             if hours_remaining > @entries[issue.assigned_to.id][considered_date].hours
                 hours_remaining -= @entries[issue.assigned_to.id][considered_date].hours
                 @entries[issue.assigned_to.id][considered_date].hours = 0
