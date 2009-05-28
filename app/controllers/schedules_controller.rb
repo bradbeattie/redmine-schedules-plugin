@@ -9,11 +9,12 @@ class SchedulesController < ApplicationController
 
     # Filters
     before_filter :require_login
-    before_filter :find_users_and_projects, :only => [:index, :edit, :users, :projects]
+    before_filter :find_users_and_projects, :only => [:index, :edit, :users, :projects, :fill]
     before_filter :find_optional_project, :only => [:report, :details]
-    before_filter :find_project, :only => [:estimate]
+    before_filter :find_project_by_version, :only => [:estimate]
     before_filter :save_entries, :only => [:edit]
     before_filter :save_default, :only => [:default]
+    before_filter :fill_entries, :only => [:fill]
     
     # Included helpers
     include SchedulesHelper
@@ -90,6 +91,17 @@ class SchedulesController < ApplicationController
         @entries = get_entries
         @closed_entries = get_closed_entries
         render :layout => !request.xhr?
+    end
+    
+    
+    # Edit the schedule for the given week/user/project
+    def fill
+        render_404 if @project.nil?
+        user_ids = visible_users(@projects.collect(&:members).flatten.uniq).collect { |user| user.id }
+        @indexed_users = @users.index_by { |user| user.id }
+        @defaults = get_defaults(user_ids).index_by { |default| default.user_id }
+        @defaults.delete_if { |user_id, default| !default.weekday_hours.detect { |weekday| weekday != 0 }}
+        @calendar = Redmine::Helpers::Calendar.new(Date.today, current_language, :week)
     end
     
     
@@ -416,6 +428,64 @@ class SchedulesController < ApplicationController
     end
     
     
+    # Fills user schedules up to a specified number of hours
+    def fill_entries
+        if request.post?
+            
+            # Get the defaults for the users we want to fill time for
+            params[:fill_total].delete_if { |user_id, fill_total| fill_total.to_f == 0 }
+            defaults = get_defaults(params[:fill_total].collect { |user_id, fill_total| user_id.to_i }).index_by { |default| default.user_id }
+            
+            # Fill the schedule of each specified user
+            params[:fill_total].each do |user_id, fill_total|
+                
+                # Prepare variables for looping 
+                hours_remaining = fill_total.to_f
+                user_id = user_id.to_i
+                default = defaults[user_id].weekday_hours
+                date_index = @date
+                
+                # Iterate through days until we've filled up enough
+                while hours_remaining > 0
+                    fill_hours = params[:fill_entry][user_id.to_s][date_index.wday.to_s].to_f
+                    if fill_hours > 0 && default[date_index.wday] > 0
+                    
+                        # Find entries for this day
+                        restrictions = "date = '#{date_index}' AND user_id = #{user_id}"
+                        project_entry = ScheduleEntry.find(:first, :conditions => restrictions + " AND project_id = #{@project.id}")
+                        other_project_hours = ScheduleEntry.sum(:hours, :conditions => restrictions + " AND project_id <> #{@project.id}")
+                        closed_hours = ScheduleClosedEntry.sum(:hours, :conditions => restrictions)
+                    
+                        # Determine the number of hours available
+                        available_hours = default[date_index.wday]
+                        available_hours -= closed_hours
+                        available_hours -= other_project_hours
+                        available_hours -= project_entry.hours unless project_entry.nil?
+                        available_hours = [available_hours, fill_hours, hours_remaining].min
+
+                        # Create an entry if we're adding time to this day
+                        if available_hours > 0 
+                            new_entry = ScheduleEntry.new
+                            new_entry.project_id = @project.id
+                            new_entry.user_id = user_id
+                            new_entry.date = date_index
+                            new_entry.hours = available_hours
+                            new_entry.hours += project_entry.hours unless project_entry.nil?
+                            save_entry(new_entry, project_entry, @project.id)
+                            hours_remaining -= available_hours
+                        end
+                    end
+                    date_index += 1
+                end
+            end
+                    
+            # Inform the user that the update was successful 
+            flash[:notice] = l(:notice_successful_update)
+            redirect_to({:action => 'index', :project_id => @project.id})
+        end
+    end
+    
+    
     # Get schedule entries between two dates for the specified users and projects
     def get_entries(project_restriction = true)
         restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
@@ -473,21 +543,20 @@ class SchedulesController < ApplicationController
         availabilities
     end
     
-    
-    # Find the project associated with the given version
-    def find_project
-        @version = Version.find(params[:id])
-        @project = @version.project
-        deny_access unless User.current.allowed_to?(:edit_all_schedules, @project) && User.current.allowed_to?(:manage_versions, @project)
-    rescue ActiveRecord::RecordNotFound
-        render_404
-    end
-    
     #
     def find_user
         params[:user_id] = User.current.id if params[:user_id].nil?
         deny_access unless User.current.id == params[:user_id].to_i || User.current.admin?
         @user = User.find(params[:user_id])
+    rescue ActiveRecord::RecordNotFound
+        render_404
+    end
+        
+    # Find the project associated with the given version
+    def find_project_by_version
+        @version = Version.find(params[:id])
+        @project = @version.project
+        deny_access unless User.current.allowed_to?(:edit_all_schedules, @project) && User.current.allowed_to?(:manage_versions, @project)
     rescue ActiveRecord::RecordNotFound
         render_404
     end

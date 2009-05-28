@@ -8,6 +8,10 @@
   label_schedules_send_update: Send schedule updates to their respective users
   label_schedules_updated: Schedules updated.
   label_schedule_edit: Editing schedule for %s
+  label_schedules_fill: Fill schedule
+  label_schedules_fill_description: This tool will help you fill up a project's schedule with available hours for the specified users. Simply specify the maximum number of hours you want each user to work on this project per day, the total number of hours to populate, and submit the form. Available time for each user will be consumed to satisfy your specifications.
+  label_schedules_fill_week_header: Maximum hours to allocate per day, if available
+  label_schedules_fill_total_header: Total hours to fill
   label_user_schedule: "%s's schedule"
   label_project_schedule: Schedule
   label_schedules_available: Available
@@ -24,3 +28,4 @@
   error_schedules_insufficient_availability: Some user's entries could not be saved as there was not enough room in their schedules.
   button_schedules_edit: Edit schedule
   button_schedules_default_edit: Edit default availability
+  button_schedules_fill: Fill schedule

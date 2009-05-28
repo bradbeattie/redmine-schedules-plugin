@@ -1,6 +1,9 @@
 table.schedule_entry_grid { width: auto; }
 table.schedule_entry_grid tbody tr { height: auto; }
 table.schedule_entry_grid th { padding: 0.4em 0.8em; white-space: nowrap; }
+table.schedule_fill_grid thead th { width: 12%; }
+table.schedule_fill_grid thead th.fill { border: 1px solid #D7D7D7; white-space: normal; }
+table.schedule_fill_grid tbody td.fill { background: #FFD; }
 table.schedule_entry_grid td { text-align: center; vertical-align: middle; }
 table.schedule_entry_grid input { text-align: center; }
 table.schedule_entry_cal tbody tr { height: 2em; }
