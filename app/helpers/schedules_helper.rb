@@ -37,13 +37,14 @@ module SchedulesHelper
             sql << " (%s) AND" % Project.allowed_to_condition(User.current, :view_schedules)
             sql << " (date BETWEEN '%s' AND '%s')" % [ActiveRecord::Base.connection.quoted_date(@from.to_time), ActiveRecord::Base.connection.quoted_date(@to.to_time)]
             sql << " UNION "
-            sql << "SELECT #{sql_inner_select}, tyear, tmonth, tweek, spent_on AS date, null AS hours, time_entries.hours AS logged_hours"
+            sql << "SELECT #{sql_inner_select}, tyear, tmonth, tweek, spent_on AS date, null AS hours, sum(time_entries.hours) AS logged_hours"
             sql << " FROM #{TimeEntry.table_name}"
             sql << " LEFT JOIN #{Project.table_name} ON #{TimeEntry.table_name}.project_id = #{Project.table_name}.id"
             sql << " WHERE"
             sql << " (%s) AND" % @project.project_condition(Setting.display_subprojects_issues?) if @project
             sql << " (%s) AND" % Project.allowed_to_condition(User.current, :view_schedules)
             sql << " (spent_on BETWEEN '%s' AND '%s')" % [ActiveRecord::Base.connection.quoted_date(@from.to_time), ActiveRecord::Base.connection.quoted_date(@to.to_time)]
+            sql << " GROUP BY #{sql_group_by}, date"
             sql << ") AS tbl GROUP BY #{sql_group_by}, tyear, tmonth, tweek, date"
           
             @hours = ActiveRecord::Base.connection.select_all(sql)
