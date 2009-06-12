@@ -569,7 +569,6 @@ class SchedulesController < ApplicationController
         @user = User.find(params[:user_id]) if params[:user_id]
         @focus = "users" if @project.nil? && @user.nil?
         @projects = visible_projects.sort
-        @projects = @projects & @user.projects unless @user.nil?
         @projects = @projects & [@project] unless @project.nil?
         @users = visible_users(@projects.collect(&:members).flatten.uniq)
         @users = @users & [@user] unless @user.nil?

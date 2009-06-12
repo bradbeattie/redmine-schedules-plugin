@@ -19,6 +19,7 @@ en:
   label_schedules_unavailable: Unavailable
   label_availability_schedule: Schedule availabilities
   label_global_schedule: All schedules
+  label_scheduled_vs_spent_time: Spent vs. Scheduled time
   label_schedules_estimate: Estimate
   label_schedules_estimate_updated: Issues and version dates updated.
   error_schedules_not_enabled: Schedules module not enabled

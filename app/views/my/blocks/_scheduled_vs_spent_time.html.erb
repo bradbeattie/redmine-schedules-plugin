@@ -1,0 +1,63 @@
+<h3><%= l(:label_scheduled_vs_spent_time) %></h3>
+
+<%
+	date = Date.civil(Date.today.year, Date.today.month, Date.today.day)
+	calendar_week = Redmine::Helpers::Calendar.new(date, current_language, :week)
+	calendar_month = Redmine::Helpers::Calendar.new(date, current_language, :month)
+	
+	date_on		= ActiveRecord::Base.connection.quoted_date(date)
+	week_from	= ActiveRecord::Base.connection.quoted_date(calendar_week.startdt)
+	week_to		= ActiveRecord::Base.connection.quoted_date(calendar_week.enddt)
+	month_from	= ActiveRecord::Base.connection.quoted_date(calendar_month.startdt)
+	month_to	= ActiveRecord::Base.connection.quoted_date(calendar_month.enddt)
+	
+	projects = Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_schedules))
+	
+	unless projects.empty?
+		sql = "SELECT p.name, p.id, SUM(hours) AS hours, SUM(logged_hours) AS logged_hours FROM ("
+		sql << " SELECT project_id, date, hours, null AS logged_hours"
+		sql << " FROM #{ScheduleEntry.table_name}"
+		sql << " WHERE user_id = #{User.current.id}"
+		sql << " AND project_id IN ("+projects.collect {|project| project.id.to_s }.join(',')+")"
+		sql << " AND date BETWEEN '%s' AND '%s'"
+		sql << "   UNION"
+		sql << " SELECT project_id, spent_on AS date, null AS hours, sum(#{TimeEntry.table_name}.hours) AS logged_hours"
+		sql << " FROM #{TimeEntry.table_name}"
+		sql << " WHERE user_id = #{User.current.id}"
+		sql << " AND project_id IN ("+projects.collect {|project| project.id.to_s }.join(',')+")"
+		sql << " AND spent_on BETWEEN '%s' AND '%s'"
+		sql << " GROUP BY project_id, date"
+		sql << ") AS results"
+		sql << " LEFT JOIN #{Project.table_name} AS p ON p.id = results.project_id"
+		sql << " GROUP BY project_id"
+		sql << " ORDER BY p.name"
+    	this_day = ActiveRecord::Base.connection.select_all(sql % [date_on, date_on, date_on, date_on]).index_by { |x| x["id"].to_i }
+    	this_week = ActiveRecord::Base.connection.select_all(sql % [week_from, week_to, week_from, week_to]).index_by { |x| x["id"].to_i }
+    	this_month = ActiveRecord::Base.connection.select_all(sql % [month_from, month_to, month_from, month_to]).index_by { |x| x["id"].to_i }
+%>
+
+<table class="list queries">		
+	<thead>
+		<tr>
+			<th><%=l(:label_project)%></th>
+			<th colspan="2"><%=l(:label_today).capitalize %></th>
+			<th colspan="2"><%=l(:label_this_week).capitalize %></th>
+			<th colspan="2"><%=l(:label_this_month).capitalize %></th>
+		</tr>
+	</thead>
+	<tbody>
+		<% this_month.keys.each do |project_id| %>
+			<tr class="<%= cycle('odd', 'even') %>">
+				<td style="border-right: 1px solid #E4E4E4"><%= link_to(h(this_month[project_id]["name"]), :controller => 'projects', :action => 'show', :id => project_id) %></td>
+				<td class="hours"><%= html_hours("%.2f" % this_day[project_id]["logged_hours"].to_f) if this_day[project_id] %></td>
+				<td style="border-right: 1px solid #E4E4E4" class="hours"><%= html_hours("%.2f" % this_day[project_id]["hours"].to_f) if this_day[project_id] %></td>
+				<td class="hours"><%= html_hours("%.2f" % this_week[project_id]["logged_hours"].to_f) if this_week[project_id] %></td>
+				<td style="border-right: 1px solid #E4E4E4" class="hours"><%= html_hours("%.2f" % this_week[project_id]["hours"].to_f) if this_week[project_id] %></td>
+				<td class="hours"><%= html_hours("%.2f" % this_month[project_id]["logged_hours"].to_f) %></td>
+				<td class="hours"><%= html_hours("%.2f" % this_month[project_id]["hours"].to_f) %></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+
+<% end %>
