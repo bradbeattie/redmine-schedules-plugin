@@ -4,5 +4,8 @@ This plugin provides instances of Redmine a method with which to allocate users
 to projects and to track this allocation over time. It does so by creating daily
 time estimates of hours worked per project per user.
 
+This plugin requires Redmine 0.8.4 or above and the Holidays gem (available from
+http://code.dunae.ca/holidays/ or through "gem install holidays").
+
 Created by Gossamer Threads Inc. (http://www.gossamer-threads.com)
 Primary developer: Brad Beattie
