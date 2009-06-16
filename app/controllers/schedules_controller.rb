@@ -103,8 +103,8 @@ class SchedulesController < ApplicationController
         @defaults.delete_if { |user_id, default| !default.weekday_hours.detect { |weekday| weekday != 0 }}
         @calendar = Redmine::Helpers::Calendar.new(Date.today, current_language, :week)
     end
-    
-    
+
+
     # Given a version, we want to estimate when it can be completed. To generate
     # this date, we need open issues to have time estimates and for assigned
     # individuals to have scheduled time.
@@ -435,7 +435,7 @@ class SchedulesController < ApplicationController
             # Get the defaults for the users we want to fill time for
             params[:fill_total].delete_if { |user_id, fill_total| fill_total.to_f == 0 }
             defaults = get_defaults(params[:fill_total].collect { |user_id, fill_total| user_id.to_i }).index_by { |default| default.user_id }
-            
+
             # Fill the schedule of each specified user
             params[:fill_total].each do |user_id, fill_total|
                 
@@ -462,6 +462,7 @@ class SchedulesController < ApplicationController
                         available_hours -= other_project_hours
                         available_hours -= project_entry.hours unless project_entry.nil?
                         available_hours = [available_hours, fill_hours, hours_remaining].min
+                        available_hours = 0 if date_index.holiday?($holiday_locale, :observed)
 
                         # Create an entry if we're adding time to this day
                         if available_hours > 0 
@@ -538,6 +539,7 @@ class SchedulesController < ApplicationController
                 availabilities[day][user.id] -= entries_by_user[user.id][day].collect {|entry| entry.hours }.sum unless entries_by_user[user.id].nil? || entries_by_user[user.id][day].nil?
                 availabilities[day][user.id] -= closed_entries_by_user[user.id][day].hours unless closed_entries_by_user[user.id].nil? || closed_entries_by_user[user.id][day].nil?
                 availabilities[day][user.id] = [0, availabilities[day][user.id]].max
+		availabilities[day][user.id] = 0 if day.holiday?($holiday_locale, :observed)
             end
         end
         availabilities

@@ -12,7 +12,7 @@
 			<tr>
 				<%= "<th>#{project}</th>" %>
 				<% (calendar.startdt..calendar.enddt).each do |day| %>
-					<td class="even<%= ' today' if Date.today == day %>">
+                                        <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
 						<%
 							if date_entries[day.ajd].nil?
 								entry = ScheduleEntry.new
@@ -61,7 +61,7 @@
 		<tr>
 			<th><%= l(:label_total) %></th>
 			<% (calendar.startdt..calendar.enddt).each do |day| %>
-				<th class="even<%= ' today' if Date.today == day %>">
+                <th class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
 					<% sum = @entries.collect {|e| e.hours if e.date == day }.compact.sum %>
 					<% sum += closed_entries[day.ajd].hours unless closed_entries[day.ajd].nil? %>
 					<%= sum if sum > 0 %>
