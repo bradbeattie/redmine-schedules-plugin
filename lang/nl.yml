@@ -1,8 +1,8 @@
   label_schedules_my_index: Mijn planning
   label_schedules_default: Beschikbaarheid bewerken van %s
   label_schedules_report: Plannings rapportage
-  label_schedules_details: Planning details  
-  label_schedules_index: Planning  
+  label_schedules_details: Planning details
+  label_schedules_index: Planning
   label_schedules_projects: Project planningen
   label_schedules_users: Gebruiker planningen
   label_schedules_send_update: Stuur planning updates naar gebruikers
@@ -24,4 +24,4 @@
   error_schedules_insufficient_availability: "Sommige gebruikers items konden niet bewaard worden, aangezien er niet genoeg tijd beschikbaar was in hun planning."
   button_schedules_edit: Bewerk planning
   button_schedules_default_edit: Bewerk beschikbaarheid
-
+  button_schedules_fill: Vul beschikbaarheid 
