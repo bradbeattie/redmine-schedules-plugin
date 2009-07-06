@@ -121,12 +121,12 @@ class SchedulesController < ApplicationController
         
         # Obtain all open issues for the given version
         raise l(:error_schedules_not_enabled) if !@version.project.module_enabled?('schedule_module')
-        @open_issues = @version.fixed_issues.collect { |issue| issue unless issue.closed? }.compact.index_by { |issue| issue.id }
+        @open_issues = @version.fixed_issues.select { |issue| !issue.closed? }.index_by { |issue| issue.id }
 
         # Confirm that all issues have estimates, are assigned and only have parents in this version
-        raise l(:error_schedules_estimate_unestimated_issues) if !@open_issues.collect { |issue_id, issue| issue if issue.estimated_hours.nil? && (issue.done_ratio < 100) }.compact.empty?
-        raise l(:error_schedules_estimate_unassigned_issues) if !@open_issues.collect { |issue_id, issue| issue if issue.assigned_to.nil? && (issue.done_ratio < 100) }.compact.empty?
-        raise l(:error_schedules_estimate_open_interversion_parents) if !@open_issues.collect do |issue_id, issue|
+        raise l(:error_schedules_estimate_unestimated_issues) unless @open_issues.select { |issue_id, issue| issue.estimated_hours.nil? }.empty?
+        raise l(:error_schedules_estimate_unassigned_issues) unless @open_issues.select { |issue_id, issue| issue.assigned_to.nil? }.empty?
+        raise l(:error_schedules_estimate_open_interversion_parents) unless @open_issues.collect do |issue_id, issue|
             issue.relations.collect do |relation|
                 Issue.find(
                     :first,
@@ -136,15 +136,15 @@ class SchedulesController < ApplicationController
             end
         end.flatten.compact.empty?
 
-        # Obtain all assignees 
-        assignees = @open_issues.collect { |issue_id, issue| issue.assigned_to }.uniq
-        @entries = ScheduleEntry.find(
-            :all,
-            :conditions => sprintf("user_id IN (%s) AND date > NOW() AND project_id = %s", assignees.collect {|user| user.id }.join(','), @version.project.id),
-            :order => ["date"]
-        ).group_by{ |entry| entry.user_id }
-        raise l(:error_schedules_estimate_insufficient_scheduling) if @entries.empty?
-        @entries.each { |user_id, user_entries| @entries[user_id] = user_entries.index_by { |entry| entry.date } }
+        # Obtain available time for assignees 
+        @users = @open_issues.collect { |issue_id, issue| issue.assigned_to }.uniq
+        @available_times = Hash[*@users.collect { |user| [user.id, {}] }.flatten]
+        @scheduled_times = Hash[*@users.collect { |user| [user.id, {}] }.flatten]
+        get_availabilities(Date.today, Date.today + 180, true).each do |entry|
+        	entry[1].each do |userid,hours|
+        		@available_times[userid][entry[0]] = hours if hours != 0
+        	end
+        end
         
         # Build issue precedence hierarchy
         floating_issues = Set.new    # Issues with no children or parents
@@ -206,15 +206,30 @@ class SchedulesController < ApplicationController
         
         # Save the issues and milestone date if requested.
         if params[:confirm_estimate]
+            
+            # Fill the users' schedules with the appropriate times    
+        	@scheduled_times.each do |userid,date_hours|
+        		date_hours.each do |date,hours|
+	                old_entry = ScheduleEntry.find(:first, :conditions => {:project_id => @project.id, :user_id => userid, :date => date})
+	                old_entry.delete unless old_entry.nil?
+	                entry = ScheduleEntry.new
+	        	    entry.project_id = @project.id
+	            	entry.user_id = userid
+	               	entry.date = date
+	                entry.hours = hours
+	                entry.save
+	            end
+        	end
+        
             @open_issues.each { |issue_id, issue| issue.save }
             @version.save
             flash[:notice] = l(:label_schedules_estimate_updated)
             redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
         end
         
-    rescue Exception => e
-        flash[:error] = e.message
-        redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
+    #rescue Exception => e
+    #    flash[:error] = e.message
+    #    redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
     end
 
 
@@ -488,20 +503,22 @@ class SchedulesController < ApplicationController
     
     
     # Get schedule entries between two dates for the specified users and projects
-    def get_entries(project_restriction = true)
-        restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
+    def get_entries(project_restriction = true, startdt = @calendar.startdt, enddt = @calendar.enddt, ignore_project = false)
+        restrictions = "(date BETWEEN '#{startdt}' AND '#{enddt}')"
         restrictions << " AND user_id = " + @user.id.to_s unless @user.nil?
         if project_restriction
             restrictions << " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")" unless @projects.empty?
             restrictions << " AND project_id = " + @project.id.to_s unless @project.nil?
+        elsif ignore_project
+        	restrictions << " AND project_id <> #{@project.id}"
         end
         ScheduleEntry.find(:all, :conditions => restrictions)
     end
     
     
     # Get closed entries between two dates for the specified users
-    def get_closed_entries
-        restrictions = "(date BETWEEN '#{@calendar.startdt}' AND '#{@calendar.enddt}')"
+    def get_closed_entries(startdt = @calendar.startdt, enddt = @calendar.enddt)
+        restrictions = "(date BETWEEN '#{startdt}' AND '#{enddt}')"
         restrictions << " AND user_id IN ("+@users.collect {|user| user.id.to_s }.join(',')+")" unless @users.empty?
         ScheduleClosedEntry.find(:all, :conditions => restrictions)
     end
@@ -516,14 +533,14 @@ class SchedulesController < ApplicationController
     
     
     # Get availability entries between two dates for the specified users
-    def get_availabilities
+    def get_availabilities(startdt = @calendar.startdt, enddt = @calendar.enddt, ignore_project = false)
 
         # Get the user's scheduled entries
-        entries_by_user = get_entries(false).group_by{ |entry| entry.user_id }
+        entries_by_user = get_entries(false, startdt, enddt, ignore_project).group_by{ |entry| entry.user_id }
         entries_by_user.each { |user_id, user_entries| entries_by_user[user_id] = user_entries.group_by { |entry| entry.date } }
-
+        
         # Get the user's scheduled unavailabilities
-        closed_entries_by_user = get_closed_entries.group_by { |closed_entry| closed_entry.user_id }
+        closed_entries_by_user = get_closed_entries(startdt, enddt).group_by { |closed_entry| closed_entry.user_id }
         closed_entries_by_user.each { |user_id, user_entries| closed_entries_by_user[user_id] = user_entries.index_by { |entry| entry.date } }
 
         # Get the user's default availability
@@ -531,7 +548,7 @@ class SchedulesController < ApplicationController
 
         # Generate and return the availabilities based on the above variables 
         availabilities = Hash.new
-        (@calendar.startdt..@calendar.enddt).each do |day|
+        (startdt..enddt).each do |day|
             availabilities[day] = Hash.new
             @users.each do |user|
                 availabilities[day][user.id] = 0
@@ -539,7 +556,7 @@ class SchedulesController < ApplicationController
                 availabilities[day][user.id] -= entries_by_user[user.id][day].collect {|entry| entry.hours }.sum unless entries_by_user[user.id].nil? || entries_by_user[user.id][day].nil?
                 availabilities[day][user.id] -= closed_entries_by_user[user.id][day].hours unless closed_entries_by_user[user.id].nil? || closed_entries_by_user[user.id][day].nil?
                 availabilities[day][user.id] = [0, availabilities[day][user.id]].max
-		availabilities[day][user.id] = 0 if day.holiday?($holiday_locale, :observed)
+				availabilities[day][user.id] = 0 if day.holiday?($holiday_locale, :observed)
             end
         end
         availabilities
@@ -571,7 +588,7 @@ class SchedulesController < ApplicationController
         @user = User.find(params[:user_id]) if params[:user_id]
         @focus = "users" if @project.nil? && @user.nil?
         @projects = visible_projects.sort
-	@projects = @projects & @user.projects unless @user.nil?
+		@projects = @projects & @user.projects unless @user.nil?
         @projects = @projects & [@project] unless @project.nil?
         @users = visible_users(@projects.collect(&:members).flatten.uniq)
         @users = @users & [@user] unless @user.nil?
@@ -622,12 +639,13 @@ class SchedulesController < ApplicationController
 
         # Determine the earliest possible start date for this issue
         possible_start = possible_start.compact.max
-        if issue.done_ratio == 100 || @entries[issue.assigned_to.id].nil?
+        if issue.done_ratio == 100 || @available_times[issue.assigned_to.id].nil?
             considered_date = possible_start + 1
         else
-            considered_date = @entries[issue.assigned_to.id].collect { |date, entry| entry if entry.date > possible_start }.compact
-            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + "// " + issue.to_s + " // " + possible_start.to_s) if considered_date.empty?
-            considered_date = considered_date.min { |a,b| a.date <=> b.date }.date
+            considered_date = @available_times[issue.assigned_to.id].keys.select { |date| date > possible_start }
+            params[:testing ] = @available_times
+            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + " // " + issue.to_s + " // " + possible_start.to_s) if considered_date.empty?
+            considered_date = considered_date.min
         end
         hours_remaining = issue.estimated_hours * ((100-issue.done_ratio)*0.01) unless issue.estimated_hours.nil?
         hours_remaining ||= 0
@@ -637,18 +655,20 @@ class SchedulesController < ApplicationController
         issue.start_date = considered_date
         while hours_remaining > 0
             considered_date_round = considered_date
-            while !@entries[issue.assigned_to.id].nil? && @entries[issue.assigned_to.id][considered_date].nil? && !@entries[issue.assigned_to.id].empty? && (considered_date < Date.today + 365) 
+            while !@available_times[issue.assigned_to.id].nil? && @available_times[issue.assigned_to.id][considered_date].nil? && !@available_times[issue.assigned_to.id].empty? && (considered_date < Date.today + 180) 
                 considered_date += 1
             end
-            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + " // " + issue.to_s + " // " + considered_date_round.to_s) if @entries[issue.assigned_to.id].nil? || @entries[issue.assigned_to.id][considered_date].nil?
-            if hours_remaining > @entries[issue.assigned_to.id][considered_date].hours
-                hours_remaining -= @entries[issue.assigned_to.id][considered_date].hours
-                @entries[issue.assigned_to.id][considered_date].hours = 0
+            raise l(:error_schedules_estimate_insufficient_scheduling, issue.assigned_to.to_s + " // " + issue.to_s + " // " + considered_date_round.to_s) if @available_times[issue.assigned_to.id].nil? || @available_times[issue.assigned_to.id][considered_date].nil?
+            @scheduled_times[issue.assigned_to.id][considered_date] ||= 0
+            if hours_remaining >= @available_times[issue.assigned_to.id][considered_date]
+                hours_remaining -= @available_times[issue.assigned_to.id][considered_date]
+            	@scheduled_times[issue.assigned_to.id][considered_date] += @available_times[issue.assigned_to.id][considered_date]
+                @available_times[issue.assigned_to.id].delete(considered_date)
             else
-                @entries[issue.assigned_to.id][considered_date].hours -= hours_remaining
+            	@scheduled_times[issue.assigned_to.id][considered_date] += hours_remaining
+                @available_times[issue.assigned_to.id][considered_date] -= hours_remaining
                 hours_remaining = 0
             end
-            @entries[issue.assigned_to.id].delete(considered_date) if @entries[issue.assigned_to.id][considered_date].hours == 0
         end
         issue.due_date = considered_date
         
