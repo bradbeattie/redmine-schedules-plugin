@@ -592,8 +592,8 @@ class SchedulesController < ApplicationController
         @projects = @projects & [@project] unless @project.nil?
         @users = visible_users(@projects.collect(&:members).flatten.uniq)
         @users = @users & [@user] unless @user.nil?
-        @users = [@user] if @users.empty? && User.current.admin?
-        deny_access if (@projects.empty? || @users.empty?) && !User.current.admin?
+        @users = [@user] if !@user.nil? && @users.empty? && User.current.admin?
+        deny_access if (@projects.empty? || @users.nil? || @users.empty?) && !User.current.admin?
         
         # Parse the given date or default to today
         @date = Date.parse(params[:date]) if params[:date]
