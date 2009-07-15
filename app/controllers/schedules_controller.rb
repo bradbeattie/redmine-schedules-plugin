@@ -227,9 +227,9 @@ class SchedulesController < ApplicationController
             redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
         end
         
-    #rescue Exception => e
-    #    flash[:error] = e.message
-    #    redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
+    rescue Exception => e
+        flash[:error] = e.message
+        redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
     end
 
 
