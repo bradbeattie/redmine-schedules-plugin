@@ -118,6 +118,8 @@ class SchedulesController < ApplicationController
     # Note that this method talks about issue parents and children. These refer to
     # to issues that are blocked or preceded by others.
     def estimate
+        # Disable over-optimistic locking
+        ActiveRecord::Base.lock_optimistically = false
         
         # Obtain all open issues for the given version
         raise l(:error_schedules_not_enabled) if !@version.project.module_enabled?('schedule_module')
@@ -226,6 +228,7 @@ class SchedulesController < ApplicationController
             flash[:notice] = l(:label_schedules_estimate_updated)
             redirect_to({:controller => 'versions', :action => 'show', :id => @version.id})
         end
+        ActiveRecord::Base.lock_optimistically = true
         
     rescue Exception => e
         flash[:error] = e.message
