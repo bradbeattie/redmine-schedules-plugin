@@ -5,6 +5,7 @@
 </h2>
 
 <% form_tag({:action=> "default"}) do %>
+	<%= hidden_field_tag 'user_id', @user.id unless @user.nil? %>
 	<div class="box">
 		<table class="cal schedule_entry_grid">
 			<thead>
