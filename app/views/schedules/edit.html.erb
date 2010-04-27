@@ -36,8 +36,13 @@
 		<%= hidden_field_tag 'user_id', @user.id unless @user.nil? %>
 		<%= render :partial => 'user', :locals => {:calendar => @calendar } unless @user.nil? %>
 		<%= render :partial => 'project', :locals => {:calendar => @calendar } unless @project.nil? %>
-		<%= submit_tag l(:button_save) %>
-		<%= check_box_tag "notify", "1" %> <label for="notify"><%= l(:label_schedules_send_update)%></label>
+		<div>
+			<%= submit_tag l(:button_save) %>
+			<%= check_box_tag "notify", "1" %> <label for="notify"><%= l(:label_schedules_send_update)%></label>
+		</div>
+		<div>
+			<%= submit_tag l(:button_save_next) %>
+		</div>
 	</div>
 <% end %>
 

@@ -9,9 +9,6 @@
 
 <div class="contextual">
 <%= link_to_if_authorized l(:button_edit), {:controller => 'versions', :action => 'edit', :id => @version}, :class => 'icon icon-edit' %>
-<% if User.current.allowed_to?(:manage_versions, @project) && @version.project.module_enabled?('schedule_module') && User.current.allowed_to?(:edit_all_schedules, @project) %>
-	<%= link_to l(:label_schedules_estimate), {:controller => 'schedules', :action => 'estimate', :id => @version}, :class => 'icon icon-report' %>
-<% end %>
 </div>
 
 <h2><%= h(@version.name) %></h2>
