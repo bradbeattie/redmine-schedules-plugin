@@ -1,30 +1,30 @@
 ru:
-  label_schedules_my_index: Мое расписание
-  label_schedules_default: "Изменение обычного расписания для %s"
-  label_schedules_report: Отчет по расписанию
-  label_schedules_details: Подробности расписания
-  label_schedules_index: Расписание
-  label_schedules_projects: Расписания проектов
-  label_schedules_users: Расписания пользователей
-  label_schedules_send_update: Отправить обновления расписания соответствующим пользователям
-  label_schedules_updated: Расписания обновлены.
-  label_schedule_edit: "Изменение расписания для %s"
-  label_user_schedule: "Расписание для %s"
-  label_project_schedule: Расписание
-  label_schedules_available: Доступен
-  label_schedules_unavailable: Недоступен
-  label_availability_schedule: Запланировать занятость
-  label_global_schedule: Все расписания
-  label_schedules_estimate: Оценить
-  label_schedules_estimate_updated: Сроки по задачам этой версии обновлены.
-  error_schedules_estimate_unestimated_issues: Все задачи этой версии должны иметь оценки времени выполнения.
-  error_schedules_estimate_unassigned_issues: Все задачи этой версии должны быть назначены.
-  error_schedules_estimate_open_interversion_parents: Все открытые задачи должны быть связаны с соответствующей версией.
-  error_schedules_estimate_insufficient_scheduling: "%s не хватает времени для выполнения %s"
-  error_schedules_insufficient_availability: Изменения в расписании некоторых пользователей не были сохранены из за недостатка доступного времени.
-  button_schedules_edit: Изменить расписание
-  button_schedules_default_edit: Изменить мое обычное расписание
-  project_module_schedule_module: Расписания
-  permission_view_schedules: Просмотр расписаний
-  permission_edit_own_schedules: Изменение собственного расписания
-  permission_edit_all_schedules: Изменение всех расписаний
+  label_schedules_my_index: "Мое расписание"
+  label_schedules_default: ""Изменение обычного расписания для {{value}}""
+  label_schedules_report: "Отчет по расписанию"
+  label_schedules_details: "Подробности расписания"
+  label_schedules_index: "Расписание"
+  label_schedules_projects: "Расписания проектов"
+  label_schedules_users: "Расписания пользователей"
+  label_schedules_send_update: "Отправить обновления расписания соответствующим пользователям"
+  label_schedules_updated: "Расписания обновлены."
+  label_schedule_edit: ""Изменение расписания для {{value}}""
+  label_user_schedule: ""Расписание для {{value}}""
+  label_project_schedule: "Расписание"
+  label_schedules_available: "Доступен"
+  label_schedules_unavailable: "Недоступен"
+  label_availability_schedule: "Запланировать занятость"
+  label_global_schedule: "Все расписания"
+  label_schedules_estimate: "Оценить"
+  label_schedules_estimate_updated: "Сроки по задачам этой версии обновлены."
+  error_schedules_estimate_unestimated_issues: "Все задачи этой версии должны иметь оценки времени выполнения."
+  error_schedules_estimate_unassigned_issues: "Все задачи этой версии должны быть назначены."
+  error_schedules_estimate_open_interversion_parents: "Все открытые задачи должны быть связаны с соответствующей версией."
+  error_schedules_estimate_insufficient_scheduling: ""{{value}} не хватает времени для выполнения {{value}}""
+  error_schedules_insufficient_availability: "Изменения в расписании некоторых пользователей не были сохранены из за недостатка доступного времени."
+  button_schedules_edit: "Изменить расписание"
+  button_schedules_default_edit: "Изменить мое обычное расписание"
+  project_module_schedule_module: "Расписания"
+  permission_view_schedules: "Просмотр расписаний"
+  permission_edit_own_schedules: "Изменение собственного расписания"
+  permission_edit_all_schedules: "Изменение всех расписаний"
