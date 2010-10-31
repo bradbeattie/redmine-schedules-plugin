@@ -13,6 +13,8 @@
 <% form_tag({}, :id => 'date_form') do %>
 
 <fieldset id="date-range"><legend><%= l(:label_date_range) %></legend>
+  <%= select_tag 'period', options_for_select([["Week", "W"], ["Month", "M"]], params[:period]) %>
+  <br />                         
 	<%= hidden_field_tag 'project_id', @project.id unless @project.nil? %>
 	<%= hidden_field_tag 'user_id', @user.id unless @user.nil? %>
     <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
