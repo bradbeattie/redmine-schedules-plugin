@@ -18,4 +18,4 @@ td.hours p.pourcent { font-size: inherit; }
 td.underscheduled table.progress td.closed { background: #e0dbba none repeat scroll 0%; }
 table.cal td.holiday { background: #EED; }
 div.schedule_cal_wrapper { overflow-x: auto }
-div.schedule_cal_wrapper table.cal thead th { width: auto; min-width:100px; }
+div.schedule_cal_wrapper table.cal thead th { width: auto; min-width:90px; }
