@@ -9,6 +9,7 @@ class SchedulesController < ApplicationController
 
     # Filters
     before_filter :require_login
+    before_filter :load_params
     before_filter :find_users_and_projects, :only => [:index, :edit, :users, :projects, :fill]
     before_filter :find_optional_project, :only => [:report, :details]
     before_filter :save_entries, :only => [:edit]
@@ -81,7 +82,8 @@ class SchedulesController < ApplicationController
         @schedule_default ||= ScheduleDefault.new 
         @schedule_default.weekday_hours ||= [0,0,0,0,0,0,0] 
         @schedule_default.user_id = @user.id
-        @calendar = Redmine::Helpers::Calendar.new(Date.today, current_language, :week)
+        
+        @calendar = Redmine::Helpers::Calendar.new(Date.today, current_language, @period)
     end
 
 
@@ -100,7 +102,7 @@ class SchedulesController < ApplicationController
         @indexed_users = @users.index_by { |user| user.id }
         @defaults = get_defaults(user_ids).index_by { |default| default.user_id }
         @defaults.delete_if { |user_id, default| !default.weekday_hours.detect { |weekday| weekday != 0 }}
-        @calendar = Redmine::Helpers::Calendar.new(Date.today, current_language, :week)
+        @calendar = Redmine::Helpers::Calendar.new(Date.today, current_language, @period)
     end
 
 
@@ -173,6 +175,19 @@ class SchedulesController < ApplicationController
     ############################################################################
     private
     
+    def load_params
+        # Parse the given date or default to today
+        @date = Date.parse(params[:date]) if params[:date]
+        @date ||= Date.civil(params[:year].to_i, params[:month].to_i, params[:day].to_i) if params[:year] && params[:month] && params[:day]
+        @date ||= Date.today
+        @period = params[:period] == "M" ? :month : :week
+        @days = (@period == :week) ? 7 : Time.days_in_month(@date.month)
+        if @period == :month
+            @date = Date.civil(@date.year, @date.month, 1)
+        end  
+        @calendar = Redmine::Helpers::Calendar.new(@date, current_language, @period)
+    end
+    
     
     # Given a specific date, show the projects and users that the current user is
     # allowed to see and provide edit access to those permission is granted to.
@@ -185,7 +200,7 @@ class SchedulesController < ApplicationController
             if flash[:warning].nil?
                 flash[:notice] = l(:label_schedules_updated)
                 if params[:commit] == l(:button_save_next)
-                	redirect_to({:action => 'edit', :date => Date.parse(params[:date]) + 7})
+                	redirect_to({:action => 'edit', :date => Date.parse(params[:date]) + @days})
                 else
                 	redirect_to({:action => 'index', :date => Date.parse(params[:date])})
                 end
@@ -469,12 +484,6 @@ class SchedulesController < ApplicationController
         @users = @users & [@user] unless @user.nil?
         @users = [@user] if !@user.nil? && @users.empty? && User.current.admin?
         deny_access if (@projects.empty? || @users.nil? || @users.empty?) && !User.current.admin?
-        
-        # Parse the given date or default to today
-        @date = Date.parse(params[:date]) if params[:date]
-        @date ||= Date.civil(params[:year].to_i, params[:month].to_i, params[:day].to_i) if params[:year] && params[:month] && params[:day]
-        @date ||= Date.today
-        @calendar = Redmine::Helpers::Calendar.new(@date, current_language, :week)
         
     rescue ActiveRecord::RecordNotFound
         render_404
