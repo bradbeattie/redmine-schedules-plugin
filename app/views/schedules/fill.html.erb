@@ -13,41 +13,41 @@
             <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
             <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
         </fieldset>
-        
-        <table class="cal schedule_entry_grid schedule_fill_grid">
-            <thead>
-                <tr>
-                    <td rowspan="2"></td>
-                    <th colspan="7"><%= l(:label_schedules_fill_week_header) %></th>
-                    <th class="fill" rowspan="2"><%= l(:label_schedules_fill_total_header) %></th>
-                </tr>
-                <tr>
-                    <% 7.times do |i| %><th><%= day_name( (@calendar.first_wday+i)%7 )%></th><% end %>
-                </tr>
-            </thead>
-            <tbody>
-                <% @defaults.each do |user_id, default| %>
-                    <% if User.current.allowed_to?(:edit_all_schedules, @project) || (User.current.id == user_id && User.current.allowed_to?(:edit_own_schedules, @project)) || User.current.admin? %>
-                        <tr>
-                            <%= "<th>#{@indexed_users[user_id]}</th>" %>
-                            <% (@calendar.startdt..@calendar.enddt).each do |day| %>
-                                <% hours = default.weekday_hours[day.wday] %>
-                                <td>
-                                    <% if hours > 0 %>
-                                        <%= text_field "fill_entry", "hours", :size => 3, :value => hours, :name => "fill_entry[#{user_id}][#{day.wday}]" %>
-                                    <% else %>
-                                        <%= %Q{<input type="text" size="3" disabled="disabled" value="#{hours}" />} %>
-                                    <% end %>
-                                    <%= %Q{<input type="hidden" value="#{hours}" />} %>
-                                </td>
-                            <% end %>
-                            <td class="fill"><%= text_field "fill_total", "hours", :size => 3, :value => "", :name => "fill_total[#{user_id}]" %></td>
-                        </tr>
-                    <% end %>
-                <% end %>
-            </tbody>
-        </table>
-        
+        <div class="schedule_cal_wrapper">
+          <table class="cal schedule_entry_grid schedule_fill_grid">
+              <thead>
+                  <tr>
+                      <td rowspan="2"></td>
+                      <th colspan="7"><%= l(:label_schedules_fill_week_header) %></th>
+                      <th class="fill" rowspan="2"><%= l(:label_schedules_fill_total_header) %></th>
+                  </tr>
+                  <tr>
+                      <% 7.times do |i| %><th><%= day_name( (@calendar.first_wday+i)%7 )%></th><% end %>
+                  </tr>
+              </thead>
+              <tbody>
+                  <% @defaults.each do |user_id, default| %>
+                      <% if User.current.allowed_to?(:edit_all_schedules, @project) || (User.current.id == user_id && User.current.allowed_to?(:edit_own_schedules, @project)) || User.current.admin? %>
+                          <tr>
+                              <%= "<th>#{@indexed_users[user_id]}</th>" %>
+                              <% (@calendar.startdt..@calendar.enddt).each do |day| %>
+                                  <% hours = default.weekday_hours[day.wday] %>
+                                  <td>
+                                      <% if hours > 0 %>
+                                          <%= text_field "fill_entry", "hours", :size => 3, :value => hours, :name => "fill_entry[#{user_id}][#{day.wday}]" %>
+                                      <% else %>
+                                          <%= %Q{<input type="text" size="3" disabled="disabled" value="#{hours}" />} %>
+                                      <% end %>
+                                      <%= %Q{<input type="hidden" value="#{hours}" />} %>
+                                  </td>
+                              <% end %>
+                              <td class="fill"><%= text_field "fill_total", "hours", :size => 3, :value => "", :name => "fill_total[#{user_id}]" %></td>
+                          </tr>
+                      <% end %>
+                  <% end %>
+              </tbody>
+          </table>
+        </div> 
         <%= javascript_include_tag 'schedules_edit', :plugin => 'redmine_schedules'  %>
 
         <%= submit_tag l(:button_schedules_fill) %>
