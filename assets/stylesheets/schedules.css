@@ -17,3 +17,4 @@ td.hours table.progress { float: right; margin: 1px 0 1px 6px; }
 td.hours p.pourcent { font-size: inherit; }
 td.underscheduled table.progress td.closed { background: #e0dbba none repeat scroll 0%; }
 table.cal td.holiday { background: #EED; }
+div.schedule_cal_wrapper { overflow-x: auto }
