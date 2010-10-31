@@ -1,8 +1,8 @@
 <div class="contextual">
-	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project && !@users.empty? %>
-	<%= link_to(l(:button_schedules_fill), {:controller => 'schedules', :action => 'fill', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project && !@users.empty?  %>
-	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => @user}, :class => 'icon icon-edit') if @user %>
-	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => User.current.id}, :class => 'icon icon-edit') unless @project || @user %>
+	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :period => @period, :project_id => @project}, :class => 'icon icon-edit') if @project && !@users.empty? %>
+	<%= link_to(l(:button_schedules_fill), {:controller => 'schedules', :action => 'fill', :date => @date, :period => @period, :project_id => @project}, :class => 'icon icon-edit') if @project && !@users.empty?  %>
+	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :period => @period, :user_id => @user}, :class => 'icon icon-edit') if @user %>
+	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :period => @period, :user_id => User.current.id}, :class => 'icon icon-edit') unless @project || @user %>
 	<%= link_to(l(:button_schedules_default_edit), {:controller => 'schedules', :action => 'default', :user_id => @user}, :class => 'icon icon-edit') if @user && (@user == User.current || User.current.admin?) %>
 </div>
 
@@ -19,7 +19,7 @@
 <% form_tag({}, :id => 'date_form') do %>
 
 <fieldset id="date-range"><legend><%= l(:label_date_range) %></legend>
-    <%= select_tag 'period', options_for_select([["Week", "W"], ["Month", "M"]], params[:period]) %>
+    <%= select_tag 'period', options_for_select([["Week", :week], ["Month", :month]], @period) %>
     <br />                         
     <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
     <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
@@ -27,8 +27,8 @@
 </fieldset>
 
 <p style="float:right; margin:0px;">
-	<%= link_to_remote ("&#171; #{l(:label_previous)}"), {:update => "content", :url => params.merge( :date => @date - @days )} %> |
-	<%= link_to_remote ("#{l(:label_next)} &#187;"), {:update => "content", :url => params.merge( :date => @date + @days )} %>
+	<%= link_to_remote ("&#171; #{l(:label_previous)}"), {:update => "content", :url => params.merge( :date => @date - @days_previous )} %> |
+	<%= link_to_remote ("#{l(:label_next)} &#187;"), {:update => "content", :url => params.merge( :date => @date + @days_next )} %>
 </p>
 
 <p class="buttons">
