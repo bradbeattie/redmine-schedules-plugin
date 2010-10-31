@@ -180,11 +180,12 @@ class SchedulesController < ApplicationController
         @date = Date.parse(params[:date]) if params[:date]
         @date ||= Date.civil(params[:year].to_i, params[:month].to_i, params[:day].to_i) if params[:year] && params[:month] && params[:day]
         @date ||= Date.today
-        @period = params[:period] == "M" ? :month : :week
-        @days = (@period == :week) ? 7 : Time.days_in_month(@date.month)
+        @period = (params[:period] == "month") ? :month : :week
         if @period == :month
             @date = Date.civil(@date.year, @date.month, 1)
         end  
+        @days_next = (@period == :week) ? 7 : Time.days_in_month(@date.month)
+        @days_previous = 7
         @calendar = Redmine::Helpers::Calendar.new(@date, current_language, @period)
     end
     
@@ -200,9 +201,9 @@ class SchedulesController < ApplicationController
             if flash[:warning].nil?
                 flash[:notice] = l(:label_schedules_updated)
                 if params[:commit] == l(:button_save_next)
-                	redirect_to({:action => 'edit', :date => Date.parse(params[:date]) + @days})
+                    redirect_to({:action => 'edit', :date => Date.parse(params[:date]) + @days_next, :period => @period})
                 else
-                	redirect_to({:action => 'index', :date => Date.parse(params[:date])})
+                    redirect_to({:action => 'index', :date => Date.parse(params[:date])})
                 end
             else
                 redirect_to({:action => 'edit', :date => Date.parse(params[:date])})
@@ -400,7 +401,7 @@ class SchedulesController < ApplicationController
             restrictions << " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")" unless @projects.empty?
             restrictions << " AND project_id = " + @project.id.to_s unless @project.nil?
         elsif ignore_project
-        	restrictions << " AND project_id <> #{@project.id}"
+            restrictions << " AND project_id <> #{@project.id}"
         end
         ScheduleEntry.find(:all, :conditions => restrictions)
     end
@@ -446,7 +447,7 @@ class SchedulesController < ApplicationController
                 availabilities[day][user.id] -= entries_by_user[user.id][day].collect {|entry| entry.hours }.sum unless entries_by_user[user.id].nil? || entries_by_user[user.id][day].nil?
                 availabilities[day][user.id] -= closed_entries_by_user[user.id][day].hours unless closed_entries_by_user[user.id].nil? || closed_entries_by_user[user.id][day].nil?
                 availabilities[day][user.id] = [0, availabilities[day][user.id]].max
-				availabilities[day][user.id] = 0 if day.holiday?($holiday_locale, :observed)
+                availabilities[day][user.id] = 0 if day.holiday?($holiday_locale, :observed)
             end
         end
         availabilities
@@ -478,7 +479,7 @@ class SchedulesController < ApplicationController
         @user = User.find(params[:user_id]) if params[:user_id]
         @focus = "users" if @project.nil? && @user.nil?
         @projects = visible_projects.sort
-		@projects = @projects & @user.projects unless @user.nil?
+        @projects = @projects & @user.projects unless @user.nil?
         @projects = @projects & [@project] unless @project.nil?
         @users = visible_users(@projects.collect(&:members).flatten.uniq)
         @users = @users & [@user] unless @user.nil?
