@@ -1,4 +1,4 @@
-= schedules
+= Redmine Schedules Plugin
 
 This plugin provides instances of Redmine a method with which to allocate users
 to projects and to track this allocation over time. It does so by creating daily
@@ -9,3 +9,10 @@ http://code.dunae.ca/holidays/ or through "gem install holidays").
 
 Created by Gossamer Threads Inc. (http://www.gossamer-threads.com)
 Primary developer: Brad Beattie
+
+== Installation
+
+If you are directly setting up the plugin via git, remember to rename the folder
+of the plugin to redmine_schedules. By default git clone will create it as 
+redmine-schedules-plugin. 
+
