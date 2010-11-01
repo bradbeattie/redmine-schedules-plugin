@@ -15,17 +15,9 @@ class CreateScheduleDefault < ActiveRecord::Migration
     
     add_index "schedule_closed_entries", ["user_id"], :name => "schedule_closed_entries_user_id"
     add_index "schedule_closed_entries", ["date"], :name => "schedule_closed_entries_date"
-    
-    drop_table :availability_entries
   end
 
   def self.down
-    create_table :availability_entries do |t|
-      t.column :user_id, :integer, :default => 0, :null => false
-      t.column :date, :date, :null => false
-      t.column :hours, :float, :null => false
-    end
-    
     drop_table :schedule_closed_entries
     drop_table :schedule_defaults
   end
