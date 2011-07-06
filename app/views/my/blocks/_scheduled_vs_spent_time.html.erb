@@ -25,7 +25,7 @@
 	sql << " GROUP BY project_id, date"
 	sql << ") AS results"
 	sql << " LEFT JOIN #{Project.table_name} AS p ON p.id = results.project_id"
-	sql << " GROUP BY project_id"
+	sql << " GROUP BY p.id, p.name"
 	this_day = ActiveRecord::Base.connection.select_all(sql % [date_on, date_on, date_on, date_on]).index_by { |x| x["id"].to_i }
 	this_week = ActiveRecord::Base.connection.select_all(sql % [week_from, week_to, week_from, week_to]).index_by { |x| x["id"].to_i }
 	this_month = ActiveRecord::Base.connection.select_all(sql % [month_from, month_to, month_from, month_to]).index_by { |x| x["id"].to_i }
