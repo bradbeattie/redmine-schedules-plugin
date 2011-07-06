@@ -2,71 +2,77 @@
 	project_entries = @entries.group_by {|entry| entry.project_id}
 	closed_entries = @closed_entries.index_by {|entry| entry.date.ajd}
 %>
-<table class="cal schedule_entry_grid">
-	<thead>
-		<tr><td></td><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%></th><% end %></tr>
-	</thead>
-	<tbody>
-		<% @projects.each do |project| %>
-			<% date_entries = project_entries[project.id].nil? ? [] : project_entries[project.id].index_by {|entry| entry.date.ajd} %>
-			<tr>
-				<%= "<th>#{project}</th>" %>
-				<% (calendar.startdt..calendar.enddt).each do |day| %>
-                                        <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
-						<%
-							if date_entries[day.ajd].nil?
-								entry = ScheduleEntry.new
-								entry.project_id = project.id
-								entry.user_id = @user.id
-								entry.date = day
-								entry.hours = nil 
-							else
-								entry = date_entries[day.ajd]
-							end
-						%>
-						<% if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin? %>
-							<%= text_field "schedule_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => entry.hours %>
-						<% else %>
-							<%= %Q{<input type="text" size="3" disabled="disabled" value="#{entry.hours}" />} %>
-						<% end %>
-						<%= %Q{<input type="hidden" value="#{entry.hours}" />} %>
-					</td>
-				<% end %>
-			</tr>
-		<% end %>
-		<tr>
-			<th><em><%= l(:label_schedules_unavailable) %></em></th>
-			<% (calendar.startdt..calendar.enddt).each do |day| %>
-				<td class="odd">
-					<%
-						if closed_entries[day.ajd].nil?
-							entry = ScheduleClosedEntry.new
-							entry.user_id = @user.id
-							entry.date = day
-							entry.hours = nil 
-						else
-							entry = closed_entries[day.ajd]
-						end
-					%>
-					<% if (User.current == user) || User.current.admin? %>
-						<%= text_field "schedule_closed_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => entry.hours %>
-					<% else %>
-						<%= %Q{<input type="text" size="3" disabled="disabled" value="#{entry.hours}" />} %>
-					<% end %>
-				</td>
-			<% end %>
-		</tr>
-	</tbody>
-	<tfoot>
-		<tr>
-			<th><%= l(:label_total) %></th>
-			<% (calendar.startdt..calendar.enddt).each do |day| %>
-                <th class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
-					<% sum = @entries.collect {|e| e.hours if e.date == day }.compact.sum %>
-					<% sum += closed_entries[day.ajd].hours unless closed_entries[day.ajd].nil? %>
-					<%= sum if sum > 0 %>
-				</th>
-			<% end %>
-		</tr>
-	</tfoot>
-</table>
+<div class="schedule_cal_wrapper">
+  <table class="cal schedule_entry_grid">
+	  <thead>
+		  <tr><td></td>
+  		  <% (@calendar.startdt..@calendar.enddt).each do |day| %>
+		      <th><%= day.strftime("%a") %><br /><%= day.strftime("%d %b") %></th>
+  		  <% end %>
+		  </tr>
+	  </thead>
+	  <tbody>
+		  <% @projects.each do |project| %>
+			  <% date_entries = project_entries[project.id].nil? ? [] : project_entries[project.id].index_by {|entry| entry.date.ajd} %>
+			  <tr>
+				  <%= "<th>#{project}</th>" %>
+				  <% (calendar.startdt..calendar.enddt).each do |day| %>
+            <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
+						  <%
+							  if date_entries[day.ajd].nil?
+								  entry = ScheduleEntry.new
+								  entry.project_id = project.id
+								  entry.user_id = @user.id
+								  entry.date = day
+								  entry.hours = nil 
+							  else
+								  entry = date_entries[day.ajd]
+							  end
+						  %>
+						  <% if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin? %>
+							  <%= text_field "schedule_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => entry.hours %>
+						  <% else %>
+							  <%= %Q{<input type="text" size="3" disabled="disabled" value="#{entry.hours}" />} %>
+						  <% end %>
+						  <%= %Q{<input type="hidden" value="#{entry.hours}" />} %>
+					  </td>
+				  <% end %>
+			  </tr>
+		  <% end %>
+		  <tr>
+			  <th><em><%= l(:label_schedules_unavailable) %></em></th>
+			  <% (calendar.startdt..calendar.enddt).each do |day| %>
+				  <td class="odd">
+					  <%
+						  if closed_entries[day.ajd].nil?
+							  entry = ScheduleClosedEntry.new
+							  entry.user_id = @user.id
+							  entry.date = day
+							  entry.hours = nil 
+						  else
+							  entry = closed_entries[day.ajd]
+						  end
+					  %>
+					  <% if (User.current == user) || User.current.admin? %>
+						  <%= text_field "schedule_closed_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => entry.hours %>
+					  <% else %>
+						  <%= %Q{<input type="text" size="3" disabled="disabled" value="#{entry.hours}" />} %>
+					  <% end %>
+				  </td>
+			  <% end %>
+		  </tr>
+	  </tbody>
+	  <tfoot>
+		  <tr>
+			  <th><%= l(:label_total) %></th>
+			  <% (calendar.startdt..calendar.enddt).each do |day| %>
+                  <th class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
+					  <% sum = @entries.collect {|e| e.hours if e.date == day }.compact.sum %>
+					  <% sum += closed_entries[day.ajd].hours unless closed_entries[day.ajd].nil? %>
+					  <%= sum if sum > 0 %>
+				  </th>
+			  <% end %>
+		  </tr>
+	  </tfoot>
+  </table>
+</div>  
