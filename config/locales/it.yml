@@ -1,15 +1,15 @@
 it:
-  label_schedules_my_index: Il mio Scadenzario
-  label_schedules_report: Report scadenze
-  label_schedules_details: Dettagli scadenze
-  label_schedules_index: Scadenze
-  label_schedules_projects: Scadenze di Progetto
-  label_schedules_users: Scadenze utente
-  label_schedules_send_update: Invia gli aggiornamenti delle scadenze ad i rispettivi utenti
-  label_schedules_updated: Aggiornamento scadenze.
-  label_schedule_edit: Edita la scadenza per %s
-  label_user_schedule: scadenza di %s
-  label_project_schedule: Scadenze
-  label_schedules_available: Disponibilita
-  label_availability_schedule: "Disponibilita' Scadenze"
-  label_global_schedule: Tutte le scadenze
+  label_schedules_my_index: "Il mio Scadenzario"
+  label_schedules_report: "Report scadenze"
+  label_schedules_details: "Dettagli scadenze"
+  label_schedules_index: "Scadenze"
+  label_schedules_projects: "Scadenze di Progetto"
+  label_schedules_users: "Scadenze utente"
+  label_schedules_send_update: "Invia gli aggiornamenti delle scadenze ad i rispettivi utenti"
+  label_schedules_updated: "Aggiornamento scadenze."
+  label_schedule_edit: "Edita la scadenza per {{value}}"
+  label_user_schedule: "scadenza di {{value}}"
+  label_project_schedule: "Scadenze"
+  label_schedules_available: "Disponibilita"
+  label_availability_schedule: ""Disponibilita' Scadenze""
+  label_global_schedule: "Tutte le scadenze"
