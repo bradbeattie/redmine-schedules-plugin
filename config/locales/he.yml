@@ -1,15 +1,15 @@
 he:
-  label_schedules_my_index: המשימות שלי
-  label_schedules_report: דוח משימות
-  label_schedules_details: פרטי משימה
-  label_schedules_index: משימות
-  label_schedules_projects: משימות פרוייקט
-  label_schedules_users: משימוות משתמש
-  label_schedules_send_update: שלח עידכוני משימות למשתמש
-  label_schedules_updated: משימות מעודכנות
-  label_schedule_edit: '%s עידכון משימה עבור'
-  label_user_schedule: '%s משימות של '
-  label_project_schedule: משימות
-  label_schedules_available: פנוי
-  label_availability_schedule: פנוי למשימות
-  label_global_schedule: כל המשימות
+  label_schedules_my_index: "המשימות שלי"
+  label_schedules_report: "דוח משימות"
+  label_schedules_details: "פרטי משימה"
+  label_schedules_index: "משימות"
+  label_schedules_projects: "משימות פרוייקט"
+  label_schedules_users: "משימוות משתמש"
+  label_schedules_send_update: "שלח עידכוני משימות למשתמש"
+  label_schedules_updated: "משימות מעודכנות"
+  label_schedule_edit: "'{{value}} עידכון משימה עבור'"
+  label_user_schedule: "'{{value}} משימות של '"
+  label_project_schedule: "משימות"
+  label_schedules_available: "פנוי"
+  label_availability_schedule: "פנוי למשימות"
+  label_global_schedule: "כל המשימות"

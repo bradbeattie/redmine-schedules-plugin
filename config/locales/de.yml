@@ -1,26 +1,34 @@
 de:
-  label_schedules_my_index: Mein Zeitplan
-  label_schedules_default: Bearbeite Standardverfügbarkeit für %s
-  label_schedules_report: Zeitplan Report
-  label_schedules_details: Zeitplan Details
-  label_schedules_index: Zeitplan
-  label_schedules_projects: Projekt Zeitpläne
-  label_schedules_users: Nutzer Zeitpläne
-  label_schedules_send_update: Benachrichtige Nutzer über Änderungen in ihrem Zeitplan
-  label_schedules_updated: Zeitplan aktualisiert.
-  label_schedule_edit: Bearbeite Zeitplan für %s
-  label_user_schedule: %s's Zeitplan
-  label_project_schedule: Zeitplan
-  label_schedules_available: Verfügbar
-  label_schedules_unavailable: Nicht verfügbar
-  label_availability_schedule: Zeitplan Verfügbarkeit
-  label_global_schedule: Alle Zeitpläne
-  label_schedules_estimate: Schätzung
-  label_schedules_estimate_updated: Daten der Tickets und Version aktualisiert.
-  error_schedules_estimate_unestimated_issues: Der Aufwand aller Tickets in dieser Version muss geschätzt sein.
-  error_schedules_estimate_unassigned_issues: Alle Tickets dieser Version müssen zugewiesen sein.
-  error_schedules_estimate_open_interversion_parents: Alle offenen Ticket-Beziehungen müssen in dieser Version sein.
-  error_schedules_estimate_insufficient_scheduling: %s ist nicht genügend Zeit geplant für %s
-  error_schedules_insufficient_availability: Die Einträge einiger Benutzer konnten augrund mangelnder Verfügbarkeit im ihrem Zeitplan nicht gespeichert werden.
-  button_schedules_edit: Zeitplan bearbeiten
-  button_schedules_default_edit: Standardverfügbarkeit bearbeiten
+  label_schedules_my_index: "Mein Zeitplan"
+  label_schedules_default: "Bearbeite Standardverfügbarkeit für {{value}}"
+  label_schedules_report: "Zeitplan Report"
+  label_schedules_details: "Zeitplan Details"
+  label_schedules_index: "Zeitplan"
+  label_schedules_projects: "Projekt Zeitpläne"
+  label_schedules_users: "Nutzer Zeitpläne"
+  label_schedules_send_update: "Benachrichtige Nutzer über Änderungen in ihrem Zeitplan"
+  label_schedules_updated: "Zeitplan aktualisiert."
+  label_schedule_edit: "Bearbeite Zeitplan für {{value}}"
+  label_user_schedule: "Zeitplan für {{value}}"
+  label_project_schedule: "Zeitplan"
+  label_schedules_available: "Verfügbar"
+  label_schedules_unavailable: "Nicht verfügbar"
+  label_scheduled_vs_spent_time: "Geplante ggü. aufgewandter Zeit"
+  label_availability_schedule: "Zeitplan Verfügbarkeit"
+  label_global_schedule: "Alle Zeitpläne"
+  label_schedules_estimate: "Schätzung"
+  label_schedules_estimate_updated: "Daten der Tickets und Version aktualisiert."
+  label_schedules_fill: "Eintragen"
+  label_schedules_fill_description: "Beschreibung"
+  label_schedules_fill_total_header: "Gesamt"
+  label_schedules_fill_week_header: "Woche"
+  error_schedules_estimate_unestimated_issues: "Der Aufwand aller Tickets in dieser Version muss geschätzt sein."
+  error_schedules_estimate_unassigned_issues: "Alle Tickets dieser Version müssen zugewiesen sein."
+  error_schedules_estimate_open_interversion_parents: "Alle offenen Ticket-Beziehungen müssen in dieser Version sein."
+  error_schedules_estimate_insufficient_scheduling: "{{value}} ist nicht genügend Zeit geplant für {{value}}"
+  error_schedules_insufficient_availability: "Die Einträge einiger Benutzer konnten augrund mangelnder Verfügbarkeit im ihrem Zeitplan nicht gespeichert werden."
+  error_schedules_not_enabled: "Das Zeitplan-Modul (Schedule module) ist nicht aktiv."
+  button_save_next: "Speichern und nächstes"
+  button_schedules_edit: "Zeitplan bearbeiten"
+  button_schedules_fill: "Zeitplan füllen"
+  button_schedules_default_edit: "Standardverfügbarkeit bearbeiten"
