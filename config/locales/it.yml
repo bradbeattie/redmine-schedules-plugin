@@ -11,5 +11,5 @@ it:
   label_user_schedule: "scadenza di {{value}}"
   label_project_schedule: "Scadenze"
   label_schedules_available: "Disponibilita"
-  label_availability_schedule: ""Disponibilita' Scadenze""
+  label_availability_schedule: "Disponibilita' Scadenze"
   label_global_schedule: "Tutte le scadenze"

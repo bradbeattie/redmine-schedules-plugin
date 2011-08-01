@@ -9,7 +9,7 @@ pt-BR:
    label_schedules_send_update: "Enviar agenda atualizada para os respectivos usuários"
    label_schedules_updated: "Agenda atualizada."
    label_schedule_edit: "Editando agenda do {{value}}"
-   label_user_schedule: ""{{value}}'s agenda""
+   label_user_schedule: "{{value}}'s agenda"
    label_project_schedule: "Agenda"
    label_schedules_available: "Disponível"
    label_schedules_unavailable: "Indisponível"
