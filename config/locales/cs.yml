@@ -6,7 +6,7 @@ cs:
   label_schedules_index: "Plán"
   label_schedules_projects: "Plány projektu"
   label_schedules_users: "Plány uživateles"
-  label_schedules_send_update: "Send schedule updates to their respective users"
+  label_schedules_send_update: "Poslat změny plánu příslušným uživatelům"
   label_schedules_updated: "Plány aktualizovány."
   label_schedule_edit: "Úprava plánu pro {{value}}"
   label_schedules_fill: "Vyplnění plánu"
