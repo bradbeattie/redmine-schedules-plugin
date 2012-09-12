@@ -33,3 +33,6 @@ cs:
   button_schedules_default_edit: "Upravit výchozí dostupnost"
   button_schedules_fill: "Vyplnit rozvrh"
   button_save_next: "Uložit a upravit další týden"
+  permission_view_schedules: "Zobrazit rozvrhy"
+  permission_edit_own_schedules: "Upravit vlastní rozvrhy"
+  permission_edit_all_schedules: "Upravit všechny rozvrhy"
