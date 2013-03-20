@@ -1,48 +1,48 @@
 <%
-	user_entries = @entries.group_by {|entry| entry.user_id}
+    user_entries = @entries.group_by {|entry| entry.user_id}
 %>
 <table class="cal schedule_entry_grid">
-	<thead>
-		<tr><td></td><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%></th><% end %></tr>
-	</thead>
-	<tbody>
-		<% @users.each do |user| %>
-			<% date_entries = user_entries[user.id].nil? ? [] : user_entries[user.id].index_by {|entry| entry.date.ajd} %>
-			<tr>
-				<%= "<th>#{user}</th>" %>
-				<% (calendar.startdt..calendar.enddt).each do |day| %>
-                                        <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
-						<%
-							if date_entries[day.ajd].nil?
-								entry = ScheduleEntry.new
-								entry.project_id = @project.id
-								entry.user_id = user.id
-								entry.date = day
-								hours = nil
-							else
-								entry = date_entries[day.ajd]
-								hours = entry.hours
-							end
-						%>
-						<% if User.current.allowed_to?(:edit_all_schedules, @project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, @project)) || User.current.admin? %>
-							<%= text_field "schedule_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => hours %>
-						<% else %>
-							<%= %Q{<input type="text" size="3" disabled="disabled" value="#{hours}" />} %>
-						<% end %>
-					</td>
-				<% end %>
-			</tr>
-		<% end %>
-	</tbody>
-	<tfoot>
-		<tr>
-			<th><%= l(:label_total) %></th>
-				<% (calendar.startdt..calendar.enddt).each do |day| %>
-                                <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
-					<% sum = @entries.collect {|e| e.hours if e.date == day }.compact.sum %>
-					<%= sum if sum > 0 %>
-				</th>
-			<% end %>
-		</tr>
-	</tfoot>
+    <thead>
+        <tr><td></td><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%></th><% end %></tr>
+    </thead>
+    <tbody>
+        <% @users.each do |user| %>
+            <% date_entries = user_entries[user.id].nil? ? [] : user_entries[user.id].index_by {|entry| entry.date.ajd} %>
+            <tr>
+                <th><%= user %></th>
+                <% (calendar.startdt..calendar.enddt).each do |day| %>
+                        <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
+                        <%
+                            if date_entries[day.ajd].nil?
+                                entry = ScheduleEntry.new
+                                entry.project_id = @project.id
+                                entry.user_id = user.id
+                                entry.date = day
+                                hours = nil
+                            else
+                                entry = date_entries[day.ajd]
+                                hours = entry.hours
+                            end
+                        %>
+                        <% if User.current.allowed_to?(:edit_all_schedules, @project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, @project)) || User.current.admin? %>
+                            <%= text_field "schedule_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => hours %>
+                        <% else %>
+                            <input type="text" size="3" disabled="disabled" value="<%= hours %>" />
+                        <% end %>
+                    </td>
+                <% end %>
+            </tr>
+        <% end %>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th><%= l(:label_total) %></th>
+                <% (calendar.startdt..calendar.enddt).each do |day| %>
+                    <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
+                    <% sum = @entries.collect {|e| e.hours if e.date == day }.compact.sum %>
+                    <%= sum if sum > 0 %>
+                </th>
+            <% end %>
+        </tr>
+    </tfoot>
 </table>

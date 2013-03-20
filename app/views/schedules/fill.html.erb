@@ -4,16 +4,16 @@
 
 <p><%= l(:label_schedules_fill_description) %></p>
 
-<% form_tag({:action=> "fill"}) do %>
+<%= form_tag({:action=> "fill"}) do %>
     <%= hidden_field_tag 'project_id', @project.id %>
     <div class="box">
-    
+
         <fieldset id="date-range"><legend><%= l(:field_start_date) %></legend>
             <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
             <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
             <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
         </fieldset>
-        
+
         <table class="cal schedule_entry_grid schedule_fill_grid">
             <thead>
                 <tr>
@@ -29,16 +29,16 @@
                 <% @defaults.each do |user_id, default| %>
                     <% if User.current.allowed_to?(:edit_all_schedules, @project) || (User.current.id == user_id && User.current.allowed_to?(:edit_own_schedules, @project)) || User.current.admin? %>
                         <tr>
-                            <%= "<th>#{@indexed_users[user_id]}</th>" %>
+                            <th><%= @indexed_users[user_id] %></th>
                             <% (@calendar.startdt..@calendar.enddt).each do |day| %>
                                 <% hours = default.weekday_hours[day.wday] %>
                                 <td>
                                     <% if hours > 0 %>
                                         <%= text_field "fill_entry", "hours", :size => 3, :value => hours, :name => "fill_entry[#{user_id}][#{day.wday}]" %>
                                     <% else %>
-                                        <%= %Q{<input type="text" size="3" disabled="disabled" value="#{hours}" />} %>
+                                        <input type="text" size="3" disabled="disabled" value="<%= hours %>" />
                                     <% end %>
-                                    <%= %Q{<input type="hidden" value="#{hours}" />} %>
+                                    <input type="hidden" value="<%= hours %>" />
                                 </td>
                             <% end %>
                             <td class="fill"><%= text_field "fill_total", "hours", :size => 3, :value => "", :name => "fill_total[#{user_id}]" %></td>
@@ -47,7 +47,7 @@
                 <% end %>
             </tbody>
         </table>
-        
+
         <%= javascript_include_tag 'schedules_edit', :plugin => 'redmine_schedules'  %>
 
         <%= submit_tag l(:button_schedules_fill) %>
@@ -58,10 +58,8 @@
 
 <% content_for :header_tags do %>
     <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>
-    <%= javascript_include_tag 'jquery-1.3.2.min.js', :plugin => 'redmine_schedules'  %>
-    <script type="text/javascript">jQuery.noConflict();</script>
 <% end %>
 
 <% content_for :sidebar do %>
-	<%= render :partial => 'sidebar' %>
+    <%= render :partial => 'sidebar' %>
 <% end %>

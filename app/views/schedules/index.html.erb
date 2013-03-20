@@ -1,42 +1,35 @@
 <div class="contextual">
-	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project && !@users.empty? %>
-	<%= link_to(l(:button_schedules_fill), {:controller => 'schedules', :action => 'fill', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project && !@users.empty?  %>
-	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => @user}, :class => 'icon icon-edit') if @user %>
-	<%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => User.current.id}, :class => 'icon icon-edit') unless @project || @user %>
-	<%= link_to(l(:button_schedules_default_edit), {:controller => 'schedules', :action => 'default', :user_id => @user}, :class => 'icon icon-edit') if @user && (@user == User.current || User.current.admin?) %>
+    <%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project && !@users.empty? %>
+    <%= link_to(l(:button_schedules_fill), {:controller => 'schedules', :action => 'fill', :date => @date, :project_id => @project}, :class => 'icon icon-edit') if @project && !@users.empty?  %>
+    <%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => @user}, :class => 'icon icon-edit') if @user %>
+    <%= link_to(l(:button_schedules_edit), {:controller => 'schedules', :action => 'edit', :date => @date, :user_id => User.current.id}, :class => 'icon icon-edit') unless @project || @user %>
+    <%= link_to(l(:button_schedules_default_edit), {:controller => 'schedules', :action => 'default', :user_id => @user}, :class => 'icon icon-edit') if @user && (@user == User.current || User.current.admin?) %>
 </div>
 
 <h2>
-	<%= l(:label_user_schedule, link_to_user(@user)) unless @user.nil? %>
-	<%= l(:label_project_schedule) unless @project.nil? %>
-	<%= l(:label_global_schedule) if @user.nil? && @project.nil? %>
+    <%= l(:label_user_schedule, link_to_user(@user)).html_safe unless @user.nil? %>
+    <%= l(:label_project_schedule) unless @project.nil? %>
+    <%= l(:label_global_schedule) if @user.nil? && @project.nil? %>
 </h2>
 
 <% unless @entries.nil? %>
 
 <p class="subtitle"><%= "#{l(:label_date_from)} #{format_date(@calendar.startdt)} #{l(:label_date_to).downcase} #{format_date(@calendar.enddt)}" %></p>
 
-<% form_tag({}, :id => 'date_form') do %>
-
-<fieldset id="date-range"><legend><%= l(:label_date_range) %></legend>
-    <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
-    <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
-    <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
-</fieldset>
-
-<p style="float:right; margin:0px;">
-	<%= link_to_remote ("&#171; #{l(:label_previous)} #{l(:label_week).downcase}"), {:update => "content", :url => params.merge( :date => @date - 7 )} %> |
-	<%= link_to_remote ("#{l(:label_next)} #{l(:label_week).downcase} &#187;"), {:update => "content", :url => params.merge( :date => @date + 7 )} %>
-</p>
-
-<p class="buttons">
-    <%= link_to_remote l(:button_apply), 
-		{	:update => "content",
-			:with => "Form.serialize('date_form')",
-			:url => params.delete_if {|key, value| [ "date", "day", "month", "year" ].include?(key) }
-		}, :class => 'icon icon-checked' %>
-</p>
-
+<%= form_tag({}, :id => 'date_form') do %>
+    <fieldset id="date-range"><legend><%= l(:label_date_range) %></legend>
+        <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
+        <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
+        <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
+    </fieldset>
+    <p style="float:right; margin:0px;">
+        <%= link_to ("&#171; #{l(:label_previous)} #{l(:label_week).downcase}").html_safe, { :year => (@date-7).year, :month => (@date-7).month, :day => (@date-7).day } %> |
+        <%= link_to ("#{l(:label_next)} #{l(:label_week).downcase} &#187;").html_safe, { :year => (@date+7).year, :month => (@date+7).month, :day => (@date+7).day } %>
+    </p>
+    <p class="buttons">
+        <%= link_to_function l(:button_apply), '$("#date_form").submit()', :class => 'icon icon-checked' %>
+        <%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :project_id => @project, :issue_id => @issue}, :class => 'icon icon-reload' %>
+    </p>
 <% end %>
 
 <%= error_messages_for 'query' %>
@@ -46,7 +39,7 @@
 <% else %>
     <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
-			
+
 <% html_title(l(:label_schedules_index)) -%>
 
 <% content_for :header_tags do %>
@@ -54,5 +47,5 @@
 <% end %>
 
 <% content_for :sidebar do %>
-	<%= render :partial => 'sidebar' %>
+    <%= render :partial => 'sidebar' %>
 <% end %>

@@ -3,58 +3,53 @@
 <%= breadcrumb link_to(l(:label_schedules_index), {:controller => 'schedules', :action => 'index', :date => @date }) unless !@project.nil? || !@user.nil? %>
 
 <h2>
-	<%= l(:label_schedule_edit, link_to_user(@user)) unless @user.nil? %>
-	<%= l(:label_schedule_edit, @project.to_s) unless @project.nil? %>
-	<%= l(:label_schedule_edit, "today") if @user.nil? && @project.nil? %>
+    <%= l(:label_schedule_edit, :value => link_to_user(@user)).html_safe unless @user.nil? %>
+    <%= l(:label_schedule_edit, :value => @project.to_s) unless @project.nil? %>
+    <%= l(:label_schedule_edit, :value => "today") if @user.nil? && @project.nil? %>
 </h2>
 
 <p class="subtitle"><%= "#{l(:label_date_from)} #{format_date(@calendar.startdt)} #{l(:label_date_to).downcase} #{format_date(@calendar.enddt)}" %></p>
 
-<% form_tag({}, :id => 'date_form') do %>
-
-<fieldset id="date-range"><legend><%= l(:label_date_range) %></legend>
-	<%= hidden_field_tag 'project_id', @project.id unless @project.nil? %>
-	<%= hidden_field_tag 'user_id', @user.id unless @user.nil? %>
-    <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
-    <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
-    <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
-</fieldset>
-
-<p class="buttons">
-    <%= link_to_remote l(:button_apply), 
-                   { :update => "content",
-                     :with => "Form.serialize('date_form')"
-                   }, :class => 'icon icon-checked' %>
-</p>
-
+<%= form_tag({}, :id => 'date_form') do %>
+    <fieldset id="date-range"><legend><%= l(:label_date_range) %></legend>
+        <%= hidden_field_tag 'project_id', @project.id unless @project.nil? %>
+        <%= hidden_field_tag 'user_id', @user.id unless @user.nil? %>
+        <%= select_day(@date.day, :prefix => "day", :discard_type => true) %>
+        <%= select_month(@date.month, :prefix => "month", :discard_type => true) %>
+        <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
+    </fieldset>
+    <p class="buttons">
+        <%= link_to l(:button_apply), { :remote => true },
+                       { :update => "content",
+                         :with => "Form.serialize('date_form')"
+                       }, :class => 'icon icon-checked' %>
+    </p>
 <% end %>
 
-<% form_tag({:action=> "edit"}) do %>
-	<div class="box">
-		<%= hidden_field_tag 'date', @date %>
-		<%= hidden_field_tag 'project_id', @project.id unless @project.nil? %>
-		<%= hidden_field_tag 'user_id', @user.id unless @user.nil? %>
-		<%= render :partial => 'user', :locals => {:calendar => @calendar } unless @user.nil? %>
-		<%= render :partial => 'project', :locals => {:calendar => @calendar } unless @project.nil? %>
-		<div>
-			<%= submit_tag l(:button_save) %>
-			<%= check_box_tag "notify", "1" %> <label for="notify"><%= l(:label_schedules_send_update)%></label>
-		</div>
-		<div>
-			<%= submit_tag l(:button_save_next) %>
-		</div>
-	</div>
+<%= form_tag({:action=> "edit"}) do %>
+    <div class="box">
+        <%= hidden_field_tag 'date', @date %>
+        <%= hidden_field_tag 'project_id', @project.id unless @project.nil? %>
+        <%= hidden_field_tag 'user_id', @user.id unless @user.nil? %>
+        <%= render :partial => 'user', :locals => {:calendar => @calendar } unless @user.nil? %>
+        <%= render :partial => 'project', :locals => {:calendar => @calendar } unless @project.nil? %>
+        <div>
+            <%= submit_tag l(:button_save) %>
+            <%= check_box_tag "notify", "1" %> <label for="notify"><%= l(:label_schedules_send_update)%></label>
+        </div>
+        <div>
+            <%= submit_tag l(:button_save_next) %>
+        </div>
+    </div>
 <% end %>
 
 <%= javascript_include_tag 'schedules_edit', :plugin => 'redmine_schedules'  %>
 
 <% content_for :header_tags do %>
     <%= stylesheet_link_tag 'schedules', :plugin => 'redmine_schedules' %>
-    <%= javascript_include_tag 'jquery-1.3.2.min.js', :plugin => 'redmine_schedules'  %>
-    <script type="text/javascript">jQuery.noConflict();</script>
 <% end %>
 
 
 <% content_for :sidebar do %>
-	<%= render :partial => 'sidebar' %>
+    <%= render :partial => 'sidebar' %>
 <% end %>

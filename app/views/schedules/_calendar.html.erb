@@ -2,28 +2,24 @@
     <div class="tabs">
         <% url_params = { :controller => 'schedules', :date => @date } %>
         <ul>
-            <li><%= link_to(l(:label_user_plural),
-                        url_params.merge({:action => 'users'}),
-                        :class => (@focus == 'users' ? 'selected' : nil)) %></li>
-            <li><%= link_to(l(:label_project_plural),
-                        url_params.merge({:action => 'projects'}),
-                        :class => (@focus == 'projects' ? 'selected' : nil)) %></li>
+            <li><%= link_to(l(:label_user_plural), "users", {:class => (@focus == 'users' ? 'selected' : nil)}) %></li>
+            <li><%= link_to(l(:label_project_plural), "projects", {:class => (@focus == 'projects' ? 'selected' : nil)}) %></li>
         </ul>
     </div>
 <% end %>
 
 <table class="cal schedule_entry_cal">
-	<thead>
-		<tr>
+    <thead>
+        <tr>
             <% if !@focus.nil? %><th></th><% end %>
-			<% (calendar.startdt..calendar.enddt).each do |day| %>
-				<th><%= day_name(day.wday) %>, <br/><%= month_name(day.month) %> <%= day.day %></th>
-			<% end %>
-		</tr>
-	</thead>
-	<tbody>
+            <% (calendar.startdt..calendar.enddt).each do |day| %>
+                <th><%= day_name(day.wday) %>, <br/><%= month_name(day.month) %> <%= day.day %></th>
+            <% end %>
+        </tr>
+    </thead>
+    <tbody>
         <% if !@focus.nil?
-            
+
             if @focus == "users"
                 schedule_entries_by_focus = @entries.group_by {|entry| entry.user_id}
                 focus_objects = @users
@@ -31,7 +27,7 @@
                 schedule_entries_by_focus = @entries.group_by {|entry| entry.project_id}
                 focus_objects = @projects
             end
-            
+
             focus_objects.each do |focus_object|
                 entries = schedule_entries_by_focus[focus_object.id]
                 @user = focus_object if @focus == "users"
@@ -63,26 +59,26 @@
             <% @user = nil %>
         <% else %>
             <% schedule_entries_by_day = @entries.group_by {|entry| entry.date} %>
-    		<tr>
-    			<% (calendar.startdt..calendar.enddt).each do |day| %>
-                                <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
-    					<ul>
-    						<% if !schedule_entries_by_day[day].nil? %>
-    							<% schedule_entries_by_day[day].sort.each do |entry| %>
-    								<%= render :partial => 'schedules/schedule_entry', :locals => {:entry => entry} %>
-    							<% end %>
-    						<% end %>
-    						<% @availabilities[day].each do |user_id, hours| %>
-    							<% user = User.find(user_id) %>
-    							<%= render :partial => 'schedules/availability', :locals => {:user => user, :hours => hours, :day => day } %>
-    						<% end unless @availabilities.nil? || @availabilities.empty? %>
-    					</ul>
-    				</td>
-    			<% end %>
-    		</tr>
-		<% end %>
-	</tbody>
-	<tfoot>
+            <tr>
+                <% (calendar.startdt..calendar.enddt).each do |day| %>
+                        <td class="even<%= ' today' if Date.today == day %> <%= ' holiday' if day.holiday?($holiday_locale, :observed) %>">
+                        <ul>
+                            <% if !schedule_entries_by_day[day].nil? %>
+                                <% schedule_entries_by_day[day].sort.each do |entry| %>
+                                    <%= render :partial => 'schedules/schedule_entry', :locals => {:entry => entry} %>
+                                <% end %>
+                            <% end %>
+                            <% @availabilities[day].each do |user_id, hours| %>
+                                <% user = User.find(user_id) %>
+                                <%= render :partial => 'schedules/availability', :locals => {:user => user, :hours => hours, :day => day } %>
+                            <% end unless @availabilities.nil? || @availabilities.empty? %>
+                        </ul>
+                    </td>
+                <% end %>
+            </tr>
+        <% end %>
+    </tbody>
+    <tfoot>
         <tr>
             <% schedule_entries_by_day ||= @entries.group_by {|entry| entry.date} %>
             <% if !@focus.nil? %><th></th><% end %>
@@ -92,7 +88,9 @@
                     <% sum = entries_by_day[day].nil? ? 0 : entries_by_day[day].collect(&:hours).sum %>
                     <%= sum if sum > 0 %>
                     <% available_sum = @availabilities[day].nil? ? 0 : @availabilities[day].collect { |user, hours| hours }.sum %>
-                    <%= "<span class='schedule_available'>(#{available_sum.to_s} #{l(:label_schedules_available).downcase})</em>" if available_sum > 0 %>
+                    <% if available_sum %>
+                        <span class='schedule_available'>(<%= available_sum.to_s %> <%= l(:label_schedules_available).downcase %>)</em>
+                    <% end %>
                 </th>
             <% end %>
         </tr>
