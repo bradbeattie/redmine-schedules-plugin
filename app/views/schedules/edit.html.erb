@@ -19,10 +19,7 @@
         <%= select_year(@date.year, :prefix => "year", :discard_type => true) %>
     </fieldset>
     <p class="buttons">
-        <%= link_to l(:button_apply), { :remote => true },
-                       { :update => "content",
-                         :with => "Form.serialize('date_form')"
-                       }, :class => 'icon icon-checked' %>
+        <%= link_to_function l(:button_apply), '$("#date_form").submit()', :class => 'icon icon-checked' %>
     </p>
 <% end %>
 
