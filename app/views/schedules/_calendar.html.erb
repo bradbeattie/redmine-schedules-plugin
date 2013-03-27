@@ -89,7 +89,7 @@
                     <%= sum if sum > 0 %>
                     <% available_sum = @availabilities[day].nil? ? 0 : @availabilities[day].collect { |user, hours| hours }.sum %>
                     <% if available_sum %>
-                        <span class='schedule_available'>(<%= available_sum.to_s %> <%= l(:label_schedules_available).downcase %>)</em>
+                        <span class='schedule_available'>(<%= available_sum.to_s %> <%= l(:label_schedules_available).downcase %>)</span>
                     <% end %>
                 </th>
             <% end %>
