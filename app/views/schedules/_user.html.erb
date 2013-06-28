@@ -24,7 +24,7 @@
                                 entry = date_entries[day.ajd]
                             end
                         %>
-                        <% if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin? %>
+                        <% if User.current.allowed_to?(:edit_all_schedules, project) || (User.current == @user && User.current.allowed_to?(:edit_own_schedules, project)) || User.current.admin? %>
                             <%= text_field "schedule_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => entry.hours %>
                         <% else %>
                             <input type="text" size="3" disabled="disabled" value="<%= entry.hours %>" />
