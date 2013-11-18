@@ -318,7 +318,9 @@ class SchedulesController < ApplicationController
         restrictions << " AND user_id = " + @user.id.to_s unless @user.nil?
         if project_restriction
             restrictions << " AND project_id IN ("+@projects.collect {|project| project.id.to_s }.join(',')+")" unless @projects.empty?
-            restrictions << " AND project_id = " + @project.id.to_s unless @project.nil?
+            if @project and @projects.nil?
+                restrictions << " AND project_id = " + @project.id.to_s
+            end
         elsif ignore_project
             restrictions << " AND project_id <> #{@project.id}"
         end
@@ -399,7 +401,7 @@ class SchedulesController < ApplicationController
         @focus = "users" if @project.nil? && @user.nil?
         @projects = visible_projects.sort
         @projects = @projects & @user.projects unless @user.nil?
-        @projects = @projects & [@project] unless @project.nil?
+        @projects = @projects & @project.self_and_descendants unless @project.nil?
         @users = visible_users(@projects.collect(&:members).flatten.uniq)
         @users = @users & [@user] unless @user.nil?
         @users = [@user] if !@user.nil? && @users.empty? && User.current.admin?
