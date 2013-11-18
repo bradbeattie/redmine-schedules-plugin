@@ -15,8 +15,6 @@ Primary developer: Brad Beattie
 
 Add this repository to your #{RAILS_ROOT}/plugins/redmine_schedules
 
-Add "gem 'holidays'" to your #{RAILS_ROOT}/Gemfile
-
 In #{RAILS_ROOT} run the command
 
     bundle install
