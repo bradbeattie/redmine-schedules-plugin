@@ -2,8 +2,8 @@
     <div class="tabs">
         <% url_params = { :controller => 'schedules', :date => @date } %>
         <ul>
-            <li><%= link_to(l(:label_user_plural), "users", {:class => (@focus == 'users' ? 'selected' : nil)}) %></li>
-            <li><%= link_to(l(:label_project_plural), "projects", {:class => (@focus == 'projects' ? 'selected' : nil)}) %></li>
+            <li><%= link_to(l(:label_user_plural), 'schedules/users', {:class => (@focus == 'users' ? 'selected' : nil)}) %></li>
+            <li><%= link_to(l(:label_project_plural), 'schedules/projects', {:class => (@focus == 'projects' ? 'selected' : nil)}) %></li>
         </ul>
     </div>
 <% end %>
