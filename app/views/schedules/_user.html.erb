@@ -48,7 +48,7 @@
                             entry = closed_entries[day.ajd]
                         end
                     %>
-                    <% if (User.current == user) || User.current.admin? %>
+                    <% if (User.current == @user) || User.current.admin? %>
                         <%= text_field "schedule_closed_entry", "hours", :size => 3, :name => entry.form_id, :id => entry.form_id, :value => entry.hours %>
                     <% else %>
                         <input type="text" size="3" disabled="disabled" value="<%= entry.hours %>" />
