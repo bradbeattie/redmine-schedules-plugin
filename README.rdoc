@@ -13,9 +13,15 @@ Primary developer: Brad Beattie
 
 == Installation
 
-Add this repository to your #{RAILS_ROOT}/plugins/redmine_schedules
+1) Clone the repository
 
-In #{RAILS_ROOT} run the command
+2) Rename <code>redmine-schedules-plugin </code> to <code>redmine_schedules</code>
+
+3) Copy the plugin to <code>#{RAILS_ROOT}/plugins/ </code>
+
+4) In #{RAILS_ROOT} run the command
 
     bundle install
     rake redmine:plugins:migrate
+
+5) Restart redmine
