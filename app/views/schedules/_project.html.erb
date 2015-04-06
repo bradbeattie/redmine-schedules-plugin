@@ -3,7 +3,11 @@
 %>
 <table class="cal schedule_entry_grid">
     <thead>
-        <tr><td></td><% 7.times do |i| %><th><%= day_name( (calendar.first_wday+i)%7 )%></th><% end %></tr>
+        <tr><td></td>
+            <% (calendar.startdt..calendar.enddt).each do |day| %>
+                <th><%= day_name(day.wday) %>, <br/><%= month_name(day.month) %> <%= day.day %></th>
+            <% end %>
+        </tr>
     </thead>
     <tbody>
         <% @users.each do |user| %>
